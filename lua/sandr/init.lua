@@ -29,24 +29,26 @@ local replace_term_completion_index = 1
 ---@class SandrConfig
 ---@field jump_forward string
 ---@field jump_backward string
----@field completion string}
+---@field completion string
+---@field flags string
 local default_config = {
     jump_forward = "<Tab>",
     jump_backward = "<S-Tab>",
     completion = "<C-Space>",
+    flags = "gc",
 }
-
+local config = default_config
 ---@param user_config? SandrConfig
 M.setup = function(user_config)
-    print(vim.inspect(user_config))
-    local config =
-        vim.tbl_deep_extend("force", default_config, user_config or {})
+    config = vim.tbl_deep_extend("force", default_config, user_config or {})
+        or default_config
     vim.api.nvim_create_augroup("CmdLineLeave", { clear = true })
     vim.api.nvim_create_autocmd("CmdlineLeave", {
         group = "CmdLineLeave",
         pattern = "*",
         callback = function()
             search_term_completion_index = 1
+            replace_term_completion_index = 1
         end,
     })
     state.read_from_db()
@@ -93,15 +95,19 @@ M.setup()
 ---@param opts table{visual:boolean}
 M.search_and_replace = function(opts)
     local selection = opts.visual and utils.buf_vtext() or ""
-    local cmd_string = ":%s/" .. selection .. "//gc<Left><Left><Left>"
+    local cmd = ":%s/"
+        .. selection
+        .. "//"
+        .. config.flags
+        .. string.rep("<Left>", #config.flags + 1)
     if selection == "" then
-        cmd_string = cmd_string .. "<Left>"
+        cmd = cmd .. "<Left>"
     end
     if opts.visual then
-        cmd_string = "<Esc>" .. cmd_string
+        cmd = "<Esc>" .. cmd
     end
-    cmd_string = vim.api.nvim_replace_termcodes(cmd_string, true, false, true)
-    vim.api.nvim_feedkeys(cmd_string, "n", true)
+    cmd = vim.api.nvim_replace_termcodes(cmd, true, false, true)
+    vim.api.nvim_feedkeys(cmd, "n", true)
 end
 
 return M

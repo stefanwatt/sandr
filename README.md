@@ -57,6 +57,7 @@ but doing the autofill when jumping forward. Seemed like a decent compromise.
 			jump_forward = "<Tab>",
 			jump_backward = "<S-Tab>",
 			completion = "<C-Space>",
+      flags = "gc"
 		},
 		keys = {
 			{
