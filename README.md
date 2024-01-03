@@ -53,3 +53,15 @@ but doing the autofill when jumping forward. Seemed like a decent compromise.
         dependencies = { "nvim-lua/plenary.nvim" },
     }
 ```
+
+## Keymaps
+
+```lua
+
+vim.keymap.set("n", "<C-h>", function()
+	require("sandr").search_and_replace({})
+end, {})
+vim.keymap.set("v", "<C-h>", function()
+	require("sandr").search_and_replace({ visual = true })
+end, {})
+```

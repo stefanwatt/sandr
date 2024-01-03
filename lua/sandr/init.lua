@@ -1,7 +1,7 @@
-local utils = require("config.search-and-replace.builtin.utils")
-local completion = require("config.search-and-replace.builtin.completion")
-local movement = require("config.search-and-replace.builtin.movement")
-local state = require("config.search-and-replace.builtin.state")
+local utils = require("sandr.utils")
+local completion = require("sandr.completion")
+local movement = require("sandr.movement")
+local state = require("sandr.state")
 
 local M = {}
 
