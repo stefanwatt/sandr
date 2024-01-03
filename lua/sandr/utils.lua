@@ -88,8 +88,8 @@ end
 ---@param term string
 M.insert_search_term = function(term)
     local cmdline = M.get_cmd_line()
-    if not cmdline then
-        return nil
+    if not cmdline or not term then
+        return
     end
     local first_slash_pos, second_slash_pos, third_slash_pos =
         M.get_slash_positions(cmdline)
