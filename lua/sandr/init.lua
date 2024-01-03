@@ -1,5 +1,4 @@
 local utils = require("sandr.utils")
-local completion = require("sandr.completion")
 local movement = require("sandr.movement")
 local state = require("sandr.state")
 
@@ -63,15 +62,13 @@ M.setup = function(user_config)
                 or 1
             utils.insert_search_term(item)
         elseif cursor == "replace" then
-            completion.show_menu(state.get_last_replace_terms(), function()
-                local last_replace_terms = state.get_last_replace_terms()
-                local item = last_replace_terms[replace_term_completion_index]
-                replace_term_completion_index = replace_term_completion_index
-                            < #last_replace_terms
-                        and replace_term_completion_index + 1
-                    or 1
-                utils.insert_replace_term(item)
-            end)
+            local last_replace_terms = state.get_last_replace_terms()
+            local item = last_replace_terms[replace_term_completion_index]
+            replace_term_completion_index = replace_term_completion_index
+                        < #last_replace_terms
+                    and replace_term_completion_index + 1
+                or 1
+            utils.insert_replace_term(item)
         end
     end, {})
 
