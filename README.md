@@ -19,6 +19,7 @@ feedback for sandr (or me), make an issue!
 1. You have to type boilerplate every time
 2. You cannot easily jump between search and replace terms
 3. You cannot get back to your previous search and replace terms easily
+4. You cannot easily use the highlighted text as input for the search and replace terms
 
 ## The Solutions:
 
@@ -26,6 +27,8 @@ feedback for sandr (or me), make an issue!
 2. Press tab to jump to the next position (search -> replace -> flags) or shift-tab to go backwards.
 3. Jumping forward will also autofill the previous search and replace terms and
    you can use a different keymap(<C-Space>) to get back even older search and replace terms.
+4. Triggering search and replace with a visual selection will automatically use the selected text
+   as the search term and place the cursor in the replace field.
 
 ## The Approach:
 
@@ -48,20 +51,31 @@ but doing the autofill when jumping forward. Seemed like a decent compromise.
 -   install using your favorite plugin manager (`lazy` in this example)
 
 ```lua
-	{
-		"stefanwatt/sandr.nvim",
-    dependencies = { "nvim-lua/plenary.nvim" },
-  }
-```
+{
+		"stefanwatt/sandr",
+		opts = {
+			jump_forward = "<Tab>",
+			jump_backward = "<S-Tab>",
+			completion = "<C-Space>",
+		},
+		keys = {
+			{
+				"<C-h>",
+				mode = { "n" },
+				function()
+					require("sandr").search_and_replace({})
+				end,
+				desc = "Search and replace",
+			},
+			{
+				"<C-h>",
+				mode = { "v" },
+				function()
+					require("sandr").search_and_replace({ visual = true })
+				end,
+				desc = "Search and replace visual",
+			},
+		},
+	}
 
-## Keymaps
-
-```lua
-
-vim.keymap.set("n", "<C-h>", function()
-	require("sandr").search_and_replace({})
-end, {})
-vim.keymap.set("v", "<C-h>", function()
-	require("sandr").search_and_replace({ visual = true })
-end, {})
 ```
