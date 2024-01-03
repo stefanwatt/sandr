@@ -29,11 +29,13 @@ local replace_term_completion_index = 1
 ---@field jump_forward string
 ---@field jump_backward string
 ---@field completion string
+---@field range string
 ---@field flags string
 local default_config = {
     jump_forward = "<Tab>",
     jump_backward = "<S-Tab>",
     completion = "<C-Space>",
+    range = "",
     flags = "gc",
 }
 local config = default_config
@@ -92,7 +94,9 @@ M.setup()
 ---@param opts table{visual:boolean}
 M.search_and_replace = function(opts)
     local selection = opts.visual and utils.buf_vtext() or ""
-    local cmd = ":%s/"
+    local cmd = ":"
+        .. config.range
+        .. "s/"
         .. selection
         .. "//"
         .. config.flags

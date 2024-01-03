@@ -138,4 +138,17 @@ M.map = function(list, cb)
     return result
 end
 
+---@generic T
+---@param list `T`[]
+---@param cb function(value: `T`): `T`
+---@return `T` | nil
+M.find = function(list, cb)
+    for _, value in ipairs(list) do
+        if cb(value) then
+            return value
+        end
+    end
+    return nil
+end
+
 return M
