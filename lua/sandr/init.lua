@@ -9,14 +9,14 @@ local function move_to_next_pos()
     if cursor == "search" then
         movement.from_search_to_replace()
     elseif cursor == "replace" then
-        movement.from_replace_to_end()
+        movement.from_replace_to_flags()
     end
 end
 
 local function move_to_prev_pos()
     local cursor = utils.cursor_pos_in_subst_cmd()
     if cursor == "end" then
-        movement.from_end_to_replace()
+        movement.from_flags_to_replace()
     elseif cursor == "replace" then
         movement.from_replace_to_search()
     end
