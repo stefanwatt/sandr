@@ -37,7 +37,7 @@ local default_config = {
 }
 
 ---@param user_config? SandrConfig
-M.config = function(user_config)
+M.setup = function(user_config)
     print(vim.inspect(user_config))
     local config =
         vim.tbl_deep_extend("force", default_config, user_config or {})
@@ -88,7 +88,7 @@ M.config = function(user_config)
         end
     end, { noremap = true })
 end
-M.config()
+M.setup()
 
 ---@param opts table{visual:boolean}
 M.search_and_replace = function(opts)
