@@ -37,7 +37,8 @@ local default_config = {
 }
 
 ---@param user_config? SandrConfig
-M.setup = function(user_config)
+M.config = function(user_config)
+    print(vim.inspect(user_config))
     local config =
         vim.tbl_deep_extend("force", default_config, user_config or {})
     vim.api.nvim_create_augroup("CmdLineLeave", { clear = true })
@@ -87,7 +88,7 @@ M.setup = function(user_config)
         end
     end, { noremap = true })
 end
-M.setup()
+M.config()
 
 ---@param opts table{visual:boolean}
 M.search_and_replace = function(opts)
