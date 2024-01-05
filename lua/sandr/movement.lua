@@ -1,8 +1,7 @@
 local utils = require("sandr.utils")
 local state = require("sandr.state")
-local M = {}
 
-M.from_search_to_replace = function()
+local function from_search_to_replace()
     local cmdline = utils.get_cmd_line()
     if not cmdline then
         return nil
@@ -34,7 +33,7 @@ M.from_search_to_replace = function()
     end
 end
 
-M.from_replace_to_flags = function()
+local function from_replace_to_flags()
     local cmdline = utils.get_cmd_line()
     if not cmdline then
         return nil
@@ -58,7 +57,7 @@ M.from_replace_to_flags = function()
     end
 end
 
-M.from_flags_to_replace = function()
+local function from_flags_to_replace()
     local cmdline = utils.get_cmd_line()
     if not cmdline then
         return nil
@@ -81,7 +80,7 @@ M.from_flags_to_replace = function()
     end
 end
 
-M.from_replace_to_search = function()
+local function from_replace_to_search()
     local cmdline = utils.get_cmd_line()
     if not cmdline then
         return nil
@@ -102,6 +101,26 @@ M.from_replace_to_search = function()
 
     if search_term ~= "" then
         state.set_last_search_term(search_term)
+    end
+end
+
+local M = {}
+
+M.move_to_next_pos = function()
+    local cursor = utils.cursor_pos_in_subst_cmd()
+    if cursor == "search" then
+        from_search_to_replace()
+    elseif cursor == "replace" then
+        from_replace_to_flags()
+    end
+end
+
+M.move_to_prev_pos = function()
+    local cursor = utils.cursor_pos_in_subst_cmd()
+    if cursor == "end" then
+        from_flags_to_replace()
+    elseif cursor == "replace" then
+        from_replace_to_search()
     end
 end
 

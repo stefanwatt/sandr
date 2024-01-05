@@ -1,17 +1,44 @@
 local database = require("sandr.database")
 local utils = require("sandr.utils")
---- @class SearchAndReplaceState
+--- @class SandrState
 --- @field last_search_term string
 --- @field last_search_terms string[]
+--- @field search_term_completion_index number
 --- @field last_replace_term string
 --- @field last_replace_terms string[]
+--- @field replace_term_completion_index number
+--- @field config? SandrConfig
 local state = {
     last_search_term = "",
     last_search_terms = {},
+    search_term_completion_index = 1,
     last_replace_term = "",
     last_replace_terms = {},
+    replace_term_completion_index = 1,
 }
 local M = {}
+
+---@param config SandrConfig
+M.set_config = function(config)
+    state.config = config
+end
+
+---@return SandrConfig
+M.get_config = function()
+    return state.config or {}
+end
+M.set_search_term_completion_index = function(index)
+    state.search_term_completion_index = index
+end
+M.get_search_term_completion_index = function()
+    return state.search_term_completion_index
+end
+M.set_replace_term_completion_index = function(index)
+    state.replace_term_completion_index = index
+end
+M.get_replace_term_completion_index = function()
+    return state.replace_term_completion_index
+end
 
 M.get_last_search_term = function()
     return state.last_search_term

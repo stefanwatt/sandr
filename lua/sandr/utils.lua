@@ -151,4 +151,26 @@ M.find = function(list, cb)
     return nil
 end
 
+---@param cb function
+---@param delay number
+M.debounce = function(cb, delay, ...)
+    local timer_id = nil
+    local is_first_call = true
+    local args = { ... }
+    return function()
+        if is_first_call then
+            cb(unpack(args))
+            is_first_call = false
+        else
+            if timer_id ~= nil then
+                vim.fn.timer_stop(timer_id)
+            end
+            timer_id = vim.fn.timer_start(delay, function()
+                cb(unpack(args))
+                is_first_call = true
+            end)
+        end
+    end
+end
+
 return M

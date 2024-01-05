@@ -88,8 +88,7 @@ Maybe it's a little easier to understand with some example usages. Assuming `<C-
 
 ## Example Usage:
 
-Maybe it's a little easier to understand with some examples. Assuming `<C-h>` as main keymap, `<Tab>` to jump forward, `<S-Tab>` to jump backward and `<C-Space>` to cycle through list of last terms would be.
-Example Usage
+Maybe it's a little easier to understand with some examples. Assuming `<C-h>` as main keymap, `<Tab>` to jump forward, `<S-Tab>` to jump backward and `<C-Space>` to cycle through list of last terms:
 
 -   `<C-h>foo<Tab>bar<CR>` Most simple case. Just prefilling the boilerplate. Could also use `<Right>` instead of `<Tab>`. Note that if there's a search term value present then it will not be replaced with the last search term when jumping.
 -   `<C-h><Tab><Tab><CR>` This will just start search and replace with both the previous search and replace term. Here since the user hasn't typed anything as search term before `<Tab>` we will assume that it's desirable to auto fill with the last search term.
