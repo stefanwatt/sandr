@@ -1,8 +1,18 @@
 local utils = require("sandr.utils")
+local dialog_manager = require("sandr.dialog-manager")
 local movement = require("sandr.movement")
 local state = require("sandr.state")
 
 local config = state.get_config()
+
+local motions = { "<Left>", "<Right>", "<Up>", "<Down>" }
+for _, motion in ipairs(motions) do
+    vim.keymap.set("c", motion, function()
+        if dialog_manager.can_move(motion) then
+            movement.move_cursor(motion)
+        end
+    end, { noremap = true })
+end
 
 vim.keymap.set("c", config.completion, function()
     local cursor = utils.cursor_pos_in_subst_cmd()

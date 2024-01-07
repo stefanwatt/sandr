@@ -11,7 +11,7 @@ local attach, timer = utils.debounce(function()
         attached = true
         vim.ui_attach(ns, { ext_cmdline = true }, ext_cmdline.on())
     end
-    if not utils.is_substitute_command() then
+    if not utils.is_substitute_command() and attached then
         attached = false
         vim.ui_detach(ns)
     end
@@ -29,6 +29,6 @@ vim.api.nvim_create_autocmd("CmdlineLeave", {
     callback = function()
         state.set_search_term_completion_index(1)
         state.set_replace_term_completion_index(1)
+        pcall(timer.close)
     end,
 })
-timer:close()

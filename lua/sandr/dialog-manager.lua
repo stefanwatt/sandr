@@ -1,4 +1,7 @@
 local popup_options = require("sandr.popup-options")
+local utils = require("sandr.utils")
+
+local visible = false
 
 ---@class SandrPopup
 ---@field value? string
@@ -7,13 +10,15 @@ local popup_options = require("sandr.popup-options")
 ---@field source_win_id? number
 ---@field prompt string
 ---@field namespace number
+---@field focused boolean
+
+---@type SandrPopup
 local search_popup = {
     mounted = false,
     prompt = "Search: ",
     namespace = vim.api.nvim_create_namespace("sandr-search-popup"),
+    focused = true,
 }
-
-local visible = false
 
 ---@param source_win_id number
 local function init_search_popup(source_win_id)
@@ -26,6 +31,7 @@ local replace_popup = {
     mounted = false,
     prompt = "Replace: ",
     namespace = vim.api.nvim_create_namespace("sandr-replace-popup"),
+    focused = false,
 }
 
 ---@param source_win_id number
@@ -132,7 +138,7 @@ local function get_cursor_positions(text, cursor_pos)
             cursor_pos >= search_term_start
             and cursor_pos <= search_term_end
         then
-            search_term_cursor_pos = cursor_pos - search_term_start
+            search_term_cursor_pos = cursor_pos - search_term_start + 1
         end
     end
     if replace_term and replace_term ~= "" then
@@ -141,7 +147,7 @@ local function get_cursor_positions(text, cursor_pos)
             cursor_pos >= replace_term_start
             and cursor_pos <= replace_term_end
         then
-            replace_term_cursor_pos = cursor_pos - replace_term_start
+            replace_term_cursor_pos = cursor_pos - replace_term_start + 1
         end
     end
     return search_term_cursor_pos, replace_term_cursor_pos
@@ -157,8 +163,8 @@ local function draw_cursor(buffer, cursor_pos, prompt, namespace)
         namespace,
         "Cursor",
         0,
-        cursor_pos + #prompt + 1,
-        cursor_pos + #prompt + 2
+        cursor_pos + #prompt,
+        cursor_pos + #prompt + 1
     )
 end
 
@@ -218,6 +224,8 @@ M.update = function(text, cursor_pos, prefix)
             search_popup.prompt,
             search_popup.namespace
         )
+        search_popup.focused = true
+        replace_popup.focused = false
     end
     if replace_term_cursor_pos ~= -1 then
         draw_cursor(
@@ -226,6 +234,8 @@ M.update = function(text, cursor_pos, prefix)
             replace_popup.prompt,
             replace_popup.namespace
         )
+        search_popup.focused = false
+        replace_popup.focused = true
     end
 end
 
@@ -234,6 +244,29 @@ M.search_popup_highlight_all = function()
 end
 M.replace_popup_highlight_all = function()
     redraw(replace_popup, "Cursor")
+end
+
+---@param motion "<Left>" |"<Right>" |"<Up>" |"<Down>" | "<BS>"
+M.can_move = function(motion)
+    local s1, s2, s3 = utils.get_slash_positions()
+    local cursor_pos = vim.fn.getcmdpos()
+    --TODO add support for <BS> -> probably an issue with existing code using <BS>
+    if motion == "<Left>" then
+        if search_popup.focused then
+            return cursor_pos > s1 + 1
+        else
+            return cursor_pos > s2 + 1
+        end
+    end
+    if motion == "<Right>" then
+        if search_popup.focused then
+            return cursor_pos < s2
+        else
+            return cursor_pos > s3
+        end
+    end
+
+    return false
 end
 
 return M

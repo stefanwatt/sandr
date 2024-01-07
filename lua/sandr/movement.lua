@@ -102,10 +102,25 @@ end
 
 local M = {}
 
+---@param motion "<Left>" |"<Right>" |"<Up>" |"<Down>"
+M.move_cursor = function(motion)
+    if motion == "<Left>" then
+        vim.fn.setcmdline(vim.fn.getcmdline(), vim.fn.getcmdpos() - 1)
+    end
+    if motion == "<Right>" then
+        vim.fn.setcmdline(vim.fn.getcmdline(), vim.fn.getcmdpos() + 1)
+    end
+end
 M.move_to_next_pos = function()
     local cursor = utils.cursor_pos_in_subst_cmd()
+    local first_slash_pos, second_slash_pos, third_slash_pos =
+        utils.get_slash_positions()
+    if not first_slash_pos or not second_slash_pos or not third_slash_pos then
+        return
+    end
     if cursor == "search" then
-        from_search_to_replace()
+        -- from_search_to_replace()
+        vim.fn.setcmdline(vim.fn.getcmdline(), third_slash_pos)
     elseif cursor == "replace" then
         from_replace_to_flags()
     end
@@ -113,10 +128,16 @@ end
 
 M.move_to_prev_pos = function()
     local cursor = utils.cursor_pos_in_subst_cmd()
+    local first_slash_pos, second_slash_pos, third_slash_pos =
+        utils.get_slash_positions()
+    if not first_slash_pos or not second_slash_pos or not third_slash_pos then
+        return
+    end
+
     if cursor == "end" then
         from_flags_to_replace()
     elseif cursor == "replace" then
-        from_replace_to_search()
+        vim.fn.setcmdline(vim.fn.getcmdline(), second_slash_pos)
     end
 end
 
