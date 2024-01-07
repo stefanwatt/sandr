@@ -41,45 +41,6 @@ local function insert_last_replace_term()
     end
 end
 
--- assumes that cursor is on second slash
-local function delete_search_term()
-    local cmdline = utils.get_cmd_line()
-    if not cmdline then
-        return
-    end
-    local first_slash_pos, second_slash_pos, third_slash_pos =
-        utils.get_slash_positions(cmdline)
-    if not first_slash_pos or not second_slash_pos or not third_slash_pos then
-        return
-    end
-    local search_term = cmdline:sub(first_slash_pos + 1, second_slash_pos - 1)
-    if not search_term or search_term == "" then
-        return
-    end
-    utils.feedkeys(string.rep("<BS>", #search_term))
-    state.set_last_search_term(search_term)
-end
-
--- assumes that cursor is on third slash
-local function delete_replace_term()
-    local cmdline = utils.get_cmd_line()
-    if not cmdline then
-        return
-    end
-    local first_slash_pos, second_slash_pos, third_slash_pos =
-        utils.get_slash_positions(cmdline)
-    if not first_slash_pos or not second_slash_pos or not third_slash_pos then
-        return
-    end
-    local replace_term = cmdline:sub(second_slash_pos + 1, third_slash_pos - 1)
-
-    if not replace_term or replace_term == "" then
-        return
-    end
-    utils.feedkeys(string.rep("<BS>", #replace_term))
-    state.set_last_replace_term(replace_term)
-end
-
 ---@param position "search" | "replace" | "flags"
 ---@return string?: cmd
 local function get_move_cmd(position)
@@ -124,7 +85,6 @@ end
 local function from_search_to_replace()
     insert_last_search_term()
     move_cursor_to("replace")
-    delete_replace_term()
 end
 
 local function from_replace_to_flags()
@@ -134,12 +94,10 @@ end
 
 local function from_flags_to_replace()
     move_cursor_to("replace")
-    delete_replace_term()
 end
 
 local function from_replace_to_search()
     move_cursor_to("search")
-    delete_search_term()
 end
 
 local M = {}

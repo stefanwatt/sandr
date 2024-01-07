@@ -147,26 +147,41 @@ M.find = function(list, cb)
     return nil
 end
 
----@param cb function
----@param delay number
-M.debounce = function(cb, delay, ...)
-    local timer_id = nil
-    local is_first_call = true
-    local args = { ... }
-    return function()
-        if is_first_call then
-            cb(unpack(args))
-            is_first_call = false
-        else
-            if timer_id ~= nil then
-                vim.fn.timer_stop(timer_id)
-            end
-            timer_id = vim.fn.timer_start(delay, function()
-                cb(unpack(args))
-                is_first_call = true
-            end)
-        end
-    end
+---Validates args for `throttle()` and  `debounce()`.
+local function td_validate(fn, ms)
+    vim.validate({
+        fn = { fn, "f" },
+        ms = {
+            ms,
+            function(ms)
+                return type(ms) == "number" and ms > 0
+            end,
+            "number > 0",
+        },
+    })
 end
 
+--- Debounces a function on the leading edge. Automatically `schedule_wrap()`s.
+---@param fn function Function to debounce
+---@param timeout number Timeout in ms
+---@return function `debounced function`
+---@return uv_timer_t `timer`
+---Remember to call `timer:close()` at the end or you will leak memory!
+function M.debounce(fn, timeout)
+    td_validate(fn, timeout)
+    local timer = vim.loop.new_timer()
+    local running = false
+
+    local function wrapped_fn(...)
+        timer:start(timeout, 0, function()
+            running = false
+        end)
+
+        if not running then
+            running = true
+            pcall(vim.schedule_wrap(fn), select(1, ...))
+        end
+    end
+    return wrapped_fn, timer
+end
 return M

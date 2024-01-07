@@ -109,10 +109,6 @@ end
 ---@param popup SandrPopup
 ---@param text string
 local function set_text_on_popup(popup, text)
-    if not text or text == "" or popup.value == text then
-        redraw(popup, "Cursor") -- FIXME Why does this not work??
-        return
-    end
     popup.value = text
     vim.api.nvim_buf_set_lines(
         popup.nui_popup.bufnr,
@@ -193,6 +189,7 @@ end
 
 local current_text = nil
 local current_cursor_pos = nil
+
 M.get_current_text = function()
     return current_text
 end
@@ -230,6 +227,13 @@ M.update = function(text, cursor_pos, prefix)
             replace_popup.namespace
         )
     end
+end
+
+M.search_popup_highlight_all = function()
+    redraw(search_popup, "Cursor")
+end
+M.replace_popup_highlight_all = function()
+    redraw(replace_popup, "Cursor")
 end
 
 return M
