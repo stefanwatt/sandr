@@ -1,10 +1,10 @@
 local utils = require("sandr.utils")
 local state = require("sandr.state")
 
-local function from_search_to_replace()
+local function insert_last_search_term()
     local cmdline = utils.get_cmd_line()
     if not cmdline then
-        return nil
+        return
     end
     local first_slash_pos, second_slash_pos, third_slash_pos =
         utils.get_slash_positions(cmdline)
@@ -12,96 +12,134 @@ local function from_search_to_replace()
         return
     end
     local search_term = cmdline:sub(first_slash_pos + 1, second_slash_pos - 1)
-    local cmd = ""
     local last_search_term = state.get_last_search_term()
     if search_term == "" and last_search_term and last_search_term ~= "" then
-        cmd = cmd .. last_search_term
+        utils.feedkeys(last_search_term)
     end
-    local cursor_pos = vim.fn.getcmdpos()
-    local right_presses_needed_to_third_slash = third_slash_pos - cursor_pos
-    cmd = cmd .. string.rep("<Right>", right_presses_needed_to_third_slash)
-
-    local replace_term = cmdline:sub(second_slash_pos + 1, third_slash_pos - 1)
-    cmd = cmd .. string.rep("<BS>", #replace_term)
-
-    utils.execute_cmd(cmd)
     if search_term ~= "" then
         state.set_last_search_term(search_term)
+    end
+end
+
+local function insert_last_replace_term()
+    local cmdline = utils.get_cmd_line()
+    if not cmdline then
+        return
+    end
+    local first_slash_pos, second_slash_pos, third_slash_pos =
+        utils.get_slash_positions(cmdline)
+    if not first_slash_pos or not second_slash_pos or not third_slash_pos then
+        return
+    end
+    local replace_term = cmdline:sub(second_slash_pos + 1, third_slash_pos - 1)
+    local last_replace_term = state.get_last_replace_term()
+    if replace_term == "" and last_replace_term and last_replace_term ~= "" then
+        utils.feedkeys(last_replace_term)
     end
     if replace_term ~= "" then
         state.set_last_replace_term(replace_term)
     end
+end
+
+-- assumes that cursor is on second slash
+local function delete_search_term()
+    local cmdline = utils.get_cmd_line()
+    if not cmdline then
+        return
+    end
+    local first_slash_pos, second_slash_pos, third_slash_pos =
+        utils.get_slash_positions(cmdline)
+    if not first_slash_pos or not second_slash_pos or not third_slash_pos then
+        return
+    end
+    local search_term = cmdline:sub(first_slash_pos + 1, second_slash_pos - 1)
+    if not search_term or search_term == "" then
+        return
+    end
+    utils.feedkeys(string.rep("<BS>", #search_term))
+    state.set_last_search_term(search_term)
+end
+
+-- assumes that cursor is on third slash
+local function delete_replace_term()
+    local cmdline = utils.get_cmd_line()
+    if not cmdline then
+        return
+    end
+    local first_slash_pos, second_slash_pos, third_slash_pos =
+        utils.get_slash_positions(cmdline)
+    if not first_slash_pos or not second_slash_pos or not third_slash_pos then
+        return
+    end
+    local replace_term = cmdline:sub(second_slash_pos + 1, third_slash_pos - 1)
+
+    if not replace_term or replace_term == "" then
+        return
+    end
+    utils.feedkeys(string.rep("<BS>", #replace_term))
+    state.set_last_replace_term(replace_term)
+end
+
+---@param position "search" | "replace" | "flags"
+---@return string?: cmd
+local function get_move_cmd(position)
+    local cmdline = utils.get_cmd_line()
+    if not cmdline then
+        return
+    end
+    local first_slash_pos, second_slash_pos, third_slash_pos =
+        utils.get_slash_positions(cmdline)
+    if not first_slash_pos or not second_slash_pos or not third_slash_pos then
+        return
+    end
+    local cursor_pos = vim.fn.getcmdpos()
+    local destination = second_slash_pos
+    if position == "search" then
+        destination = second_slash_pos
+    end
+    if position == "replace" then
+        destination = third_slash_pos
+    end
+    if position == "flags" then
+        destination = #cmdline + 1
+    end
+
+    local left_of_destination = cursor_pos <= destination
+    local direction = left_of_destination and "<RIGHT>" or "<LEFT>"
+    local presses_needed = left_of_destination and destination - cursor_pos
+        or cursor_pos - destination
+    local cmd = string.rep(direction, presses_needed)
+    return cmd
+end
+
+---@param position "search" | "replace" | "flags"
+local function move_cursor_to(position)
+    local cmd = get_move_cmd(position)
+    if not cmd then
+        return
+    end
+    utils.feedkeys(cmd)
+end
+
+local function from_search_to_replace()
+    insert_last_search_term()
+    move_cursor_to("replace")
+    delete_replace_term()
 end
 
 local function from_replace_to_flags()
-    local cmdline = utils.get_cmd_line()
-    if not cmdline then
-        return nil
-    end
-    local _, second_slash_pos, third_slash_pos =
-        utils.get_slash_positions(cmdline)
-    local cursor_pos = vim.fn.getcmdpos()
-    local right_presses_needed_to_third_slash = third_slash_pos - cursor_pos
-    local replace_term = cmdline:sub(second_slash_pos + 1, third_slash_pos - 1)
-    local cmd = ""
-    local last_replace_term = state.get_last_replace_term()
-    if replace_term == "" and last_replace_term and last_replace_term ~= "" then
-        cmd = cmd .. last_replace_term
-    end
-    cursor_pos = vim.fn.getcmdpos()
-    local right_presses_needed_to_end = #cmdline - cursor_pos + 1
-    cmd = cmd .. string.rep("<Right>", right_presses_needed_to_end)
-    utils.execute_cmd(cmd)
-    if replace_term ~= "" then
-        state.set_last_replace_term(replace_term)
-    end
+    insert_last_replace_term()
+    move_cursor_to("flags")
 end
 
 local function from_flags_to_replace()
-    local cmdline = utils.get_cmd_line()
-    if not cmdline then
-        return nil
-    end
-    local first_slash_pos, second_slash_pos, third_slash_pos =
-        utils.get_slash_positions(cmdline)
-    if not first_slash_pos or not second_slash_pos or not third_slash_pos then
-        return
-    end
-
-    local cursor_pos = vim.fn.getcmdpos()
-    local left_presses_needed_to_third_slash = cursor_pos - third_slash_pos
-    local cmd = string.rep("<Left>", left_presses_needed_to_third_slash)
-
-    local replace_term = cmdline:sub(second_slash_pos + 1, third_slash_pos - 1)
-    cmd = cmd .. string.rep("<BS>", #replace_term)
-    utils.execute_cmd(cmd)
-    if replace_term ~= "" then
-        state.set_last_replace_term(replace_term)
-    end
+    move_cursor_to("replace")
+    delete_replace_term()
 end
 
 local function from_replace_to_search()
-    local cmdline = utils.get_cmd_line()
-    if not cmdline then
-        return nil
-    end
-    local first_slash_pos, second_slash_pos, third_slash_pos =
-        utils.get_slash_positions(cmdline)
-    if not first_slash_pos or not second_slash_pos or not third_slash_pos then
-        return
-    end
-
-    local cursor_pos = vim.fn.getcmdpos()
-    local left_presses_needed_to_second_slash = cursor_pos - second_slash_pos
-    local cmd = string.rep("<Left>", left_presses_needed_to_second_slash)
-
-    local search_term = cmdline:sub(first_slash_pos + 1, second_slash_pos - 1)
-    cmd = cmd .. string.rep("<BS>", #search_term)
-    utils.execute_cmd(cmd)
-
-    if search_term ~= "" then
-        state.set_last_search_term(search_term)
-    end
+    move_cursor_to("search")
+    delete_search_term()
 end
 
 local M = {}

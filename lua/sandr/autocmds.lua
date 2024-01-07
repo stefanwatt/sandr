@@ -12,7 +12,7 @@ vim.api.nvim_create_autocmd("CmdlineChanged", {
     callback = utils.debounce(function()
         if utils.is_substitute_command() and not attached then
             attached = true
-            vim.ui_attach(ns, { ext_cmdline = true }, ext_cmdline.on(ns))
+            vim.ui_attach(ns, { ext_cmdline = true }, ext_cmdline.on())
         end
         if not utils.is_substitute_command() then
             attached = false

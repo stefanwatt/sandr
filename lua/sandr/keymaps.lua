@@ -37,13 +37,13 @@ vim.keymap.set("c", config.jump_forward, function()
     if utils.is_substitute_command() then
         movement.move_to_next_pos()
     else
-        vim.api.nvim_feedkeys(config.jump_forward, "i", true)
+        vim.api.nvim_input(config.jump_forward)
     end
 end, { noremap = true })
 vim.keymap.set("c", config.jump_backward, function()
     if utils.is_substitute_command() then
         movement.move_to_prev_pos()
     else
-        vim.api.nvim_feedkeys(config.jump_backward, "i", true)
+        vim.api.nvim_input(config.jump_backward)
     end
 end, { noremap = true })

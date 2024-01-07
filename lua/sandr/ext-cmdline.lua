@@ -16,7 +16,7 @@ end
 
 local M = {}
 
-M.on = function(ns)
+M.on = function()
     ---@param event string
     return function(event, ...)
         if event == "cmdline_show" then
@@ -39,8 +39,7 @@ M.on = function(ns)
                 end
                 if not mounted then
                     dialog_manager.show_replace_popup(
-                        vim.api.nvim_get_current_win(),
-                        ns
+                        vim.api.nvim_get_current_win()
                     )
                     mounted = true
                     return

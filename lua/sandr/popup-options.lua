@@ -15,9 +15,15 @@ local function get_popup_options(title, row, source_win_id)
         focusable = true,
         border = {
             style = "rounded",
-            text = {
-                top = title,
-                top_align = "center",
+            -- text = {
+            --     top = title,
+            --     top_align = "center",
+            -- },
+            padding = {
+                top = 0,
+                left = 0,
+                right = 0,
+                bottom = 0,
             },
         },
         relative = {
@@ -29,7 +35,7 @@ local function get_popup_options(title, row, source_win_id)
             col = "99%",
         },
         size = {
-            width = 15,
+            width = 25,
             height = 1,
         },
     }

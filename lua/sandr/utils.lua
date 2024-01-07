@@ -1,12 +1,8 @@
 local M = {}
 
 ---@param cmd string
-M.execute_cmd = function(cmd)
-    vim.api.nvim_feedkeys(
-        vim.api.nvim_replace_termcodes(cmd, true, false, true),
-        "i",
-        true
-    )
+M.feedkeys = function(cmd)
+    vim.api.nvim_input(cmd)
 end
 
 ---@return string?
@@ -103,7 +99,7 @@ M.insert_search_term = function(term)
 
     local search_term = cmdline:sub(first_slash_pos + 1, second_slash_pos - 1)
     cmd = cmd .. string.rep("<BS>", #search_term) .. term
-    M.execute_cmd(cmd)
+    M.feedkeys(cmd)
 end
 
 ---@param term string
@@ -124,7 +120,7 @@ M.insert_replace_term = function(term)
 
     local replace_term = cmdline:sub(second_slash_pos + 1, third_slash_pos - 1)
     cmd = cmd .. string.rep("<BS>", #replace_term) .. term
-    M.execute_cmd(cmd)
+    M.feedkeys(cmd)
 end
 
 ---@generic T

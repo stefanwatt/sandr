@@ -5,10 +5,15 @@ local popup_options = require("sandr.popup-options")
 ---@field mounted boolean
 ---@field nui_popup? NuiPopup
 ---@field source_win_id? number
-local search_popup = { mounted = false }
+---@field prompt string
+---@field namespace number
+local search_popup = {
+    mounted = false,
+    prompt = "Search: ",
+    namespace = vim.api.nvim_create_namespace("sandr-search-popup"),
+}
 
 local visible = false
-local namespace = nil
 
 ---@param source_win_id number
 local function init_search_popup(source_win_id)
@@ -17,7 +22,11 @@ local function init_search_popup(source_win_id)
 end
 
 ---@type SandrPopup
-local replace_popup = { mounted = false }
+local replace_popup = {
+    mounted = false,
+    prompt = "Replace: ",
+    namespace = vim.api.nvim_create_namespace("sandr-replace-popup"),
+}
 
 ---@param source_win_id number
 local function init_replace_popup(source_win_id)
@@ -70,21 +79,31 @@ local function parse_cmdline_text(cmdline_text)
     return search_term or "", replace_term or "", flags or ""
 end
 
---HACK to fix issue with text now being drawn
+--HACK to fix issue with text not being drawn
 ---@param popup SandrPopup
 ---@param hlgroup? string
 local function redraw(popup, hlgroup)
-    if not namespace then
-        return
-    end
-    vim.api.nvim_buf_clear_namespace(popup.nui_popup.bufnr, namespace, 0, -1)
+    vim.api.nvim_buf_clear_namespace(
+        popup.nui_popup.bufnr,
+        popup.namespace,
+        0,
+        -1
+    )
     vim.api.nvim_buf_add_highlight(
         popup.nui_popup.bufnr,
-        namespace,
+        popup.namespace,
+        "Conceal",
+        0,
+        0,
+        #popup.prompt
+    )
+    vim.api.nvim_buf_add_highlight(
+        popup.nui_popup.bufnr,
+        popup.namespace,
         hlgroup or "NormalFloat",
         0,
-        1,
-        -1
+        #popup.prompt,
+        #popup.prompt + (popup.value and #popup.value or 0)
     )
 end
 ---@param popup SandrPopup
@@ -95,7 +114,13 @@ local function set_text_on_popup(popup, text)
         return
     end
     popup.value = text
-    vim.api.nvim_buf_set_lines(popup.nui_popup.bufnr, 0, -1, false, { text })
+    vim.api.nvim_buf_set_lines(
+        popup.nui_popup.bufnr,
+        0,
+        -1,
+        false,
+        { popup.prompt .. text .. " " }
+    )
     redraw(popup)
 end
 
@@ -128,21 +153,16 @@ end
 
 ---@param buffer number
 ---@param cursor_pos number
-local function draw_cursor(buffer, cursor_pos)
-    if not namespace then
-        return
-    end
-    vim.api.nvim_buf_clear_namespace(buffer, namespace, 0, -1)
-    if cursor_pos == -1 then
-        return
-    end
+---@param prompt string
+---@param namespace number
+local function draw_cursor(buffer, cursor_pos, prompt, namespace)
     vim.api.nvim_buf_add_highlight(
         buffer,
         namespace,
         "Cursor",
         0,
-        cursor_pos,
-        cursor_pos + 1
+        cursor_pos + #prompt + 1,
+        cursor_pos + #prompt + 2
     )
 end
 
@@ -158,12 +178,7 @@ M.hide_replace_popup = function()
 end
 
 ---@param source_win_id number
----@param _namespace number
-M.show_replace_popup = function(source_win_id, _namespace)
-    if not _namespace then
-        return
-    end
-    namespace = _namespace
+M.show_replace_popup = function(source_win_id)
     if not search_popup.nui_popup then
         init_search_popup(source_win_id)
     end
@@ -194,11 +209,27 @@ M.update = function(text, cursor_pos, prefix)
     local search_term, replace_term, _ = parse_cmdline_text(text)
 
     set_text_on_popup(search_popup, search_term)
+
     set_text_on_popup(replace_popup, replace_term)
     local search_term_cursor_pos, replace_term_cursor_pos =
         get_cursor_positions(text, cursor_pos)
-    draw_cursor(search_popup.nui_popup.bufnr, search_term_cursor_pos)
-    draw_cursor(replace_popup.nui_popup.bufnr, replace_term_cursor_pos)
+
+    if search_term_cursor_pos ~= -1 then
+        draw_cursor(
+            search_popup.nui_popup.bufnr,
+            search_term_cursor_pos,
+            search_popup.prompt,
+            search_popup.namespace
+        )
+    end
+    if replace_term_cursor_pos ~= -1 then
+        draw_cursor(
+            replace_popup.nui_popup.bufnr,
+            replace_term_cursor_pos,
+            replace_popup.prompt,
+            replace_popup.namespace
+        )
+    end
 end
 
 return M
