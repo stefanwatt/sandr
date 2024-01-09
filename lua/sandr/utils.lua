@@ -1,8 +1,9 @@
 local M = {}
 
----@param cmd string
-M.feedkeys = function(cmd)
-    vim.api.nvim_input(cmd)
+--- for some reason vim.fn.setcmdlinepos() doesn't work, but this does
+---@param pos number
+M.set_cmd_line_pos = function(pos)
+    vim.fn.setcmdline(vim.fn.getcmdline(), pos)
 end
 
 ---@return string?
@@ -83,44 +84,28 @@ end
 
 ---@param term string
 M.insert_search_term = function(term)
-    local cmdline = M.get_cmd_line()
-    if not cmdline or not term then
+    local first_slash_pos, second_slash_pos, _ = M.get_slash_positions()
+    if not first_slash_pos or not second_slash_pos then
         return
     end
-    local first_slash_pos, second_slash_pos, third_slash_pos =
-        M.get_slash_positions(cmdline)
-    if not first_slash_pos or not second_slash_pos or not third_slash_pos then
-        return
-    end
-
-    local cursor_pos = vim.fn.getcmdpos()
-    local left_presses_needed_to_second_slash = cursor_pos - second_slash_pos
-    local cmd = string.rep("<Left>", left_presses_needed_to_second_slash)
-
-    local search_term = cmdline:sub(first_slash_pos + 1, second_slash_pos - 1)
-    cmd = cmd .. string.rep("<BS>", #search_term) .. term
-    M.feedkeys(cmd)
+    vim.fn.setcmdline(
+        vim.fn.getcmdline():sub(1, first_slash_pos)
+            .. term
+            .. vim.fn.getcmdline():sub(second_slash_pos)
+    )
 end
 
 ---@param term string
 M.insert_replace_term = function(term)
-    local cmdline = M.get_cmd_line()
-    if not cmdline then
-        return nil
-    end
-    local first_slash_pos, second_slash_pos, third_slash_pos =
-        M.get_slash_positions(cmdline)
-    if not first_slash_pos or not second_slash_pos or not third_slash_pos then
+    local _, second_slash_pos, third_slash_pos = M.get_slash_positions()
+    if not third_slash_pos or not second_slash_pos then
         return
     end
-
-    local cursor_pos = vim.fn.getcmdpos()
-    local left_presses_needed_to_third_slash = cursor_pos - third_slash_pos
-    local cmd = string.rep("<Left>", left_presses_needed_to_third_slash)
-
-    local replace_term = cmdline:sub(second_slash_pos + 1, third_slash_pos - 1)
-    cmd = cmd .. string.rep("<BS>", #replace_term) .. term
-    M.feedkeys(cmd)
+    vim.fn.setcmdline(
+        vim.fn.getcmdline():sub(1, second_slash_pos)
+            .. term
+            .. vim.fn.getcmdline():sub(third_slash_pos)
+    )
 end
 
 ---@generic T
@@ -183,5 +168,16 @@ function M.debounce(fn, timeout)
         end
     end
     return wrapped_fn, timer
+end
+
+--- @param args table: The unstructured argument list.
+--- @return string: text
+--- @return number: cursor_pos
+--- @return string: prefix
+M.parse_ext_cmdline_args = function(args)
+    local text = args[1][1][2]
+    local cursor_pos = args[2]
+    local prefix = args[3]
+    return text, cursor_pos, prefix
 end
 return M

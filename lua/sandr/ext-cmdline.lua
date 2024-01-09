@@ -3,25 +3,17 @@ local utils = require("sandr.utils")
 
 local mounted = false
 
---- @param args table: The unstructured argument list.
---- @return string: text
---- @return number: cursor_pos
---- @return string: prefix
-local function parse_ext_cmdline_args(args)
-    local text = args[1][1][2]
-    local cursor_pos = args[2]
-    local prefix = args[3]
-    return text, cursor_pos, prefix
-end
-
 local M = {}
 
+local count = 1
 M.on = function()
     ---@param event string
-    return function(event, ...)
+    return utils.debounce(function(event, ...)
+        print("called " .. count .. " times")
+        count = count + 1
         if event == "cmdline_show" then
             local status, text, cursor_pos, prefix =
-                pcall(parse_ext_cmdline_args, { ... })
+                pcall(utils.parse_ext_cmdline_args, { ... })
             if not status then
                 return
             end
@@ -45,13 +37,13 @@ M.on = function()
                     return
                 end
                 dialog_manager.update(text, cursor_pos, prefix)
-                vim.api.nvim_input(" <bs>")
+                vim.api.nvim_input(" <Left><Del>")
             end)
         elseif event == "cmdline_hide" then
             dialog_manager.hide_replace_popup()
             mounted = false
         end
-    end
+    end, 20)
 end
 
 return M

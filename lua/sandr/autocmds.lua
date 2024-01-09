@@ -15,7 +15,7 @@ local attach, timer = utils.debounce(function()
         attached = false
         vim.ui_detach(ns)
     end
-end, 1000)
+end, 1)
 
 vim.api.nvim_create_autocmd("CmdlineChanged", {
     group = group,

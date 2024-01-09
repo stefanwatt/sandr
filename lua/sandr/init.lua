@@ -32,21 +32,18 @@ M.setup()
 ---@param opts table{visual:boolean}
 M.search_and_replace = function(opts)
     local selection = opts.visual and utils.buf_vtext() or ""
+    local cmdline = config.range .. "s/" .. selection .. "//" .. config.flags
     local cmd = ":"
-        .. config.range
-        .. "s/"
-        .. selection
-        .. "//"
-        .. config.flags
-        .. string.rep("<Left>", #config.flags + 1)
-    if selection == "" then
-        cmd = cmd .. "<Left>"
-    end
     if opts.visual then
         cmd = "<Esc>" .. cmd
     end
-    cmd = vim.api.nvim_replace_termcodes(cmd, true, false, true)
-    vim.api.nvim_feedkeys(cmd, "n", true)
+    vim.api.nvim_input(cmd)
+    local _, second_slash_pos, third_slash_pos =
+        utils.get_slash_positions(cmdline)
+    local cursor_pos = (opts.visual and third_slash_pos or second_slash_pos)
+    vim.schedule(function()
+        vim.fn.setcmdline(cmdline, cursor_pos)
+    end)
 end
 
 return M

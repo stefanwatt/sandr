@@ -5,8 +5,7 @@ local state = require("sandr.state")
 
 local config = state.get_config()
 
-local motions = { "<Left>", "<Right>", "<Up>", "<Down>" }
-for _, motion in ipairs(motions) do
+for _, motion in pairs(movement.motions) do
     vim.keymap.set("c", motion, function()
         if dialog_manager.can_move(motion) then
             movement.move_cursor(motion)
@@ -45,15 +44,11 @@ end, {})
 
 vim.keymap.set("c", config.jump_forward, function()
     if utils.is_substitute_command() then
-        movement.move_to_next_pos()
-    else
-        vim.api.nvim_input(config.jump_forward)
+        movement.jump_to_replace()
     end
 end, { noremap = true })
 vim.keymap.set("c", config.jump_backward, function()
     if utils.is_substitute_command() then
-        movement.move_to_prev_pos()
-    else
-        vim.api.nvim_input(config.jump_backward)
+        movement.jump_to_search()
     end
 end, { noremap = true })

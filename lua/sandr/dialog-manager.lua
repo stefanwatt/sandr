@@ -210,7 +210,10 @@ M.update = function(text, cursor_pos, prefix)
     current_text = text
     current_cursor_pos = cursor_pos
     local search_term, replace_term, _ = parse_cmdline_text(text)
-
+    if prefix == "foo" then
+        print("search_term=" .. search_term)
+        print("replace_term=" .. replace_term)
+    end
     set_text_on_popup(search_popup, search_term)
 
     set_text_on_popup(replace_popup, replace_term)
@@ -246,12 +249,16 @@ M.replace_popup_highlight_all = function()
     redraw(replace_popup, "Cursor")
 end
 
----@param motion "<Left>" |"<Right>" |"<Up>" |"<Down>" | "<BS>"
+---@param motion SandrMotion
 M.can_move = function(motion)
+    print("can_move: motion=" .. motion)
     local s1, s2, s3 = utils.get_slash_positions()
+    if not s1 or not s2 or not s3 then
+        return true
+    end
     local cursor_pos = vim.fn.getcmdpos()
-    --TODO add support for <BS> -> probably an issue with existing code using <BS>
-    if motion == "<Left>" then
+    if motion == "<Left>" or motion == "<BS>" then
+        print("from can move")
         if search_popup.focused then
             return cursor_pos > s1 + 1
         else
