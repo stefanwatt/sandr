@@ -13,6 +13,10 @@ for _, motion in pairs(movement.motions) do
     end, { noremap = true })
 end
 
+vim.keymap.set("c", config.toggle, function()
+    vim.api.nvim_input("<Esc>")
+end, {})
+
 vim.keymap.set("c", config.completion, function()
     local cursor = utils.cursor_pos_in_subst_cmd()
     if cursor == "search" then

@@ -2,14 +2,18 @@ local utils = require("sandr.utils")
 local state = require("sandr.state")
 
 local M = {}
+---@class SandrArgs
+---@field visual boolean
 
 ---@class SandrConfig
+---@field toggle string
 ---@field jump_forward string
 ---@field jump_backward string
 ---@field completion string
 ---@field range string
 ---@field flags string
 local default_config = {
+    toggle = "<C-h>",
     jump_forward = "<Tab>",
     jump_backward = "<S-Tab>",
     completion = "<C-Space>",
@@ -28,19 +32,18 @@ M.setup = function(user_config)
     require("sandr.ext-cmdline")
 end
 M.setup()
-
----@param opts table{visual:boolean}
-M.search_and_replace = function(opts)
-    local selection = opts.visual and utils.buf_vtext() or ""
+---@param args SandrArgs
+M.search_and_replace = function(args)
+    local selection = args.visual and utils.buf_vtext() or ""
     local cmdline = config.range .. "s/" .. selection .. "//" .. config.flags
     local cmd = ":"
-    if opts.visual then
+    if args.visual then
         cmd = "<Esc>" .. cmd
     end
     vim.api.nvim_input(cmd)
     local _, second_slash_pos, third_slash_pos =
         utils.get_slash_positions(cmdline)
-    local cursor_pos = (opts.visual and third_slash_pos or second_slash_pos)
+    local cursor_pos = (args.visual and third_slash_pos or second_slash_pos)
     vim.schedule(function()
         vim.fn.setcmdline(cmdline, cursor_pos)
     end)

@@ -43,7 +43,7 @@ M.on = function()
             dialog_manager.hide_replace_popup()
             mounted = false
         end
-    end, 20)
+    end, 1)
 end
 
 return M
