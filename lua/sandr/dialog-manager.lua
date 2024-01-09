@@ -115,6 +115,7 @@ end
 ---@param popup SandrPopup
 ---@param text string
 local function set_text_on_popup(popup, text)
+    print("setting text: " .. text .. " on popup")
     popup.value = text
     vim.api.nvim_buf_set_lines(
         popup.nui_popup.bufnr,
@@ -210,13 +211,9 @@ M.update = function(text, cursor_pos, prefix)
     current_text = text
     current_cursor_pos = cursor_pos
     local search_term, replace_term, _ = parse_cmdline_text(text)
-    if prefix == "foo" then
-        print("search_term=" .. search_term)
-        print("replace_term=" .. replace_term)
-    end
     set_text_on_popup(search_popup, search_term)
-
     set_text_on_popup(replace_popup, replace_term)
+
     local search_term_cursor_pos, replace_term_cursor_pos =
         get_cursor_positions(text, cursor_pos)
 

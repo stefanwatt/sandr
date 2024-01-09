@@ -21,11 +21,20 @@ M.setup = function()
     end, {})
 
     vim.keymap.set("c", "<CR>", function()
-        print(vim.api.nvim_get_current_buf())
         utils.substitute_loop_around(
             dialog_manager.get_search_term(),
             dialog_manager.get_replace_term()
         )
+        vim.schedule(function()
+            vim.api.nvim_input("<Esc>")
+            dialog_manager.hide_replace_popup()
+        end)
+    end, {})
+
+    vim.keymap.set("c", "<S-CR>", function()
+        local pattern = dialog_manager.get_search_term()
+        local replacement = dialog_manager.get_replace_term()
+        utils.substitute_all(pattern, replacement)
         vim.schedule(function()
             vim.api.nvim_input("<Esc>")
             dialog_manager.hide_replace_popup()

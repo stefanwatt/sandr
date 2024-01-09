@@ -213,4 +213,9 @@ M.substitute_loop_around = function(pattern, replacement)
         )
     end
 end
+
+M.substitute_all = function(pattern, replacement)
+    vim.cmd("%s/" .. pattern .. "/" .. replacement .. "/g")
+end
+
 return M
