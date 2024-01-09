@@ -180,4 +180,37 @@ M.parse_ext_cmdline_args = function(args)
     local prefix = args[3]
     return text, cursor_pos, prefix
 end
+
+M.substitute_loop_around = function(pattern, replacement)
+    local flags = "gc"
+    local current_line = vim.fn.line(".")
+    local last_line = vim.fn.line("$")
+
+    -- Substitute from current line to the end of the file
+    vim.cmd(
+        current_line
+            .. ","
+            .. last_line
+            .. "s/"
+            .. pattern
+            .. "/"
+            .. replacement
+            .. "/"
+            .. flags
+    )
+
+    -- If the current line is not the first line, run the substitute from the start to the current line
+    if current_line > 1 then
+        vim.cmd(
+            "1,"
+                .. (current_line - 1)
+                .. "s/"
+                .. pattern
+                .. "/"
+                .. replacement
+                .. "/"
+                .. flags
+        )
+    end
+end
 return M

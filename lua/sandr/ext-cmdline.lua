@@ -5,12 +5,9 @@ local mounted = false
 
 local M = {}
 
-local count = 1
 M.on = function()
     ---@param event string
     return utils.debounce(function(event, ...)
-        print("called " .. count .. " times")
-        count = count + 1
         if event == "cmdline_show" then
             local status, text, cursor_pos, prefix =
                 pcall(utils.parse_ext_cmdline_args, { ... })

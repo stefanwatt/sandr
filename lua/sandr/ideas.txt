@@ -1,2 +1,0 @@
-<Insert> can toggle between inserting and overstriking
-use that instead of <bs>

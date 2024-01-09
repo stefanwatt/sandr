@@ -242,23 +242,24 @@ M.update = function(text, cursor_pos, prefix)
     end
 end
 
-M.search_popup_highlight_all = function()
-    redraw(search_popup, "Cursor")
+---@return string search_term
+M.get_search_term = function()
+    return search_popup.value
 end
-M.replace_popup_highlight_all = function()
-    redraw(replace_popup, "Cursor")
+
+---@return string replace_term
+M.get_replace_term = function()
+    return replace_popup.value
 end
 
 ---@param motion SandrMotion
 M.can_move = function(motion)
-    print("can_move: motion=" .. motion)
     local s1, s2, s3 = utils.get_slash_positions()
     if not s1 or not s2 or not s3 then
         return true
     end
     local cursor_pos = vim.fn.getcmdpos()
     if motion == "<Left>" or motion == "<BS>" then
-        print("from can move")
         if search_popup.focused then
             return cursor_pos > s1 + 1
         else
