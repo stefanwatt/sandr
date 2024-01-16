@@ -76,12 +76,13 @@ M.setup = function()
         if utils.is_substitute_command() then
             movement.jump_to_replace()
         end
-    end, { noremap = true })
+    end, {})
+
     vim.keymap.set("c", config.jump_backward, function()
         if utils.is_substitute_command() then
             movement.jump_to_search()
         end
-    end, { noremap = true })
+    end, {})
 end
 
 M.teardown = function()

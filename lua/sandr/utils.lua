@@ -185,7 +185,7 @@ M.substitute_loop_around = function(pattern, replacement)
     local flags = "gc"
     local current_line = vim.fn.line(".")
     local last_line = vim.fn.line("$")
-
+    vim.api.nvim_input("<CR>")
     -- Substitute from current line to the end of the file
     vim.cmd(
         current_line

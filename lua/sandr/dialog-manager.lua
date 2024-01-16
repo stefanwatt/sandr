@@ -58,33 +58,6 @@ local function show_popup(popup)
 
     popup.nui_popup:show()
 end
-
----@param popup SandrPopup
-local function hide_popup(popup)
-    if not popup.mounted or not visible then
-        return
-    end
-    popup.nui_popup:hide()
-end
-
----@param cmdline_text string
----@return string: search_term
----@return string: replace_term
----@return string: flags
-local function parse_cmdline_text(cmdline_text)
-    -- First pattern tries to match format with replace term: s/search/replace/flags
-    local search_term, replace_term, flags =
-        cmdline_text:match("s/([^/]+)/([^/]+)/([^/]*)")
-
-    -- If replace term is not found, try to match format without replace term: s/search//flags
-    if not search_term then
-        search_term, flags = cmdline_text:match("s/([^/]+)/()/([^/]*)")
-        replace_term = "" -- Set replace term to empty string
-    end
-
-    return search_term or "", replace_term or "", flags or ""
-end
-
 --HACK to fix issue with text not being drawn
 ---@param popup SandrPopup
 ---@param hlgroup? string
@@ -115,7 +88,6 @@ end
 ---@param popup SandrPopup
 ---@param text string
 local function set_text_on_popup(popup, text)
-    print("setting text: " .. text .. " on popup")
     popup.value = text
     vim.api.nvim_buf_set_lines(
         popup.nui_popup.bufnr,
@@ -125,6 +97,33 @@ local function set_text_on_popup(popup, text)
         { popup.prompt .. text .. " " }
     )
     redraw(popup)
+end
+
+---@param popup SandrPopup
+local function hide_popup(popup)
+    if not popup.mounted or not visible then
+        return
+    end
+    set_text_on_popup(popup, "")
+    popup.nui_popup:hide()
+end
+
+---@param cmdline_text string
+---@return string: search_term
+---@return string: replace_term
+---@return string: flags
+local function parse_cmdline_text(cmdline_text)
+    -- First pattern tries to match format with replace term: s/search/replace/flags
+    local search_term, replace_term, flags =
+        cmdline_text:match("s/([^/]+)/([^/]+)/([^/]*)")
+
+    -- If replace term is not found, try to match format without replace term: s/search//flags
+    if not search_term then
+        search_term, flags = cmdline_text:match("s/([^/]+)/()/([^/]*)")
+        replace_term = "" -- Set replace term to empty string
+    end
+
+    return search_term or "", replace_term or "", flags or ""
 end
 
 ---@param text string

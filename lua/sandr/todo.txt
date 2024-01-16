@@ -3,3 +3,8 @@ use that instead of <bs>
 
 could use buffer local keymaps -> i suppose they work on command mode too
 since nvim_get_current_buf prints the same buffer as in normal mode
+
+first usage of sandr is fine, second one is bugged -> substitute command is messed up
+this seems to fix it self sometimes on every other use
+
+replace on enter
