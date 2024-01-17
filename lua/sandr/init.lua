@@ -28,23 +28,33 @@ local M = {}
 ---@class SandrArgs
 ---@field visual boolean
 
+---@class SandrConfigUpdate
+---@field toggle? string
+---@field jump_forward? string
+---@field jump_backward? string
+---@field range? string
+---@field flags? string
+
+---@class SandrUserConfig
+---@field toggle string
+---@field jump_forward string
+---@field jump_backward string
+
 ---@class SandrConfig
 ---@field toggle string
 ---@field jump_forward string
 ---@field jump_backward string
----@field completion string
 ---@field range string
 ---@field flags string
 local default_config = {
     toggle = "<C-h>",
     jump_forward = "<Tab>",
     jump_backward = "<S-Tab>",
-    completion = "<C-Space>",
     range = "%",
     flags = "gc",
 }
 local config = default_config
----@param user_config? SandrConfig
+---@param user_config? SandrUserConfig
 M.setup = function(user_config)
     config = vim.tbl_deep_extend("force", default_config, user_config or {})
         or default_config
@@ -58,16 +68,7 @@ M.search_and_replace = function(args)
     vim.ui_attach(ns, { ext_cmdline = true }, ext_cmdline.attach)
     dialog_manager.show_replace_popup(vim.api.nvim_get_current_win())
     local selection = args.visual and utils.buf_vtext() or ""
-    local cmdline = config.range .. "s/" .. selection .. "//" .. config.flags
-    local _, second_slash_pos, third_slash_pos =
-        utils.get_slash_positions(cmdline)
-    local cursor_pos = (args.visual and third_slash_pos or second_slash_pos)
-    vim.schedule(function()
-        vim.api.nvim_input("<Esc>:")
-        vim.schedule(function()
-            vim.fn.setcmdline(cmdline, cursor_pos)
-        end)
-    end)
+    utils.set_cmd_line(selection, "", args.visual, state.get_config())
 end
 
 return M

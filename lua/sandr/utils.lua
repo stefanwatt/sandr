@@ -182,7 +182,7 @@ M.parse_ext_cmdline_args = function(args)
 end
 
 M.substitute_loop_around = function(pattern, replacement)
-    local flags = "gc"
+    local flags = state.getconfig
     local current_line = vim.fn.line(".")
     local last_line = vim.fn.line("$")
     vim.api.nvim_input("<CR>")
@@ -216,6 +216,26 @@ end
 
 M.substitute_all = function(pattern, replacement)
     vim.cmd("%s/" .. pattern .. "/" .. replacement .. "/g")
+end
+
+---@param search_term string
+---@param replace_term string
+---@param visual boolean
+---@param config SandrConfig
+M.set_cmd_line = function(search_term, replace_term, visual, config)
+    local cmdline = config.range
+        .. "s/"
+        .. search_term
+        .. "/"
+        .. replace_term
+        .. "/"
+        .. config.flags
+    local _, second_slash_pos, third_slash_pos = M.get_slash_positions(cmdline)
+    local cursor_pos = (visual and third_slash_pos or second_slash_pos)
+    vim.api.nvim_input("<Esc>:")
+    vim.schedule(function()
+        vim.fn.setcmdline(cmdline, cursor_pos)
+    end)
 end
 
 return M

@@ -23,6 +23,11 @@ M.set_config = function(config)
     state.config = config
 end
 
+---@param config SandrConfigUpdate
+M.update_config = function(config)
+    state.config = vim.tbl_deep_extend("force", state.config or {}, config)
+end
+
 ---@return SandrConfig
 M.get_config = function()
     return state.config or {}

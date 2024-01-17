@@ -16,6 +16,21 @@ M.setup = function()
         end, { noremap = true })
     end
 
+    vim.keymap.set("c", "<A-i>", function()
+        local current_config = state.get_config()
+        if current_config.flags == "gci" then
+            state.update_config({ flags = "gc" })
+        else
+            state.update_config({ flags = "gci" })
+        end
+        utils.set_cmd_line(
+            dialog_manager.get_search_term(),
+            dialog_manager.get_replace_term(),
+            false,
+            state.get_config()
+        )
+    end, {})
+    vim.keymap.set("c", "/", function() end, {})
     vim.keymap.set("c", config.toggle, function()
         vim.api.nvim_input("<Esc>")
     end, {})
@@ -41,37 +56,6 @@ M.setup = function()
         end)
     end, {})
 
-    vim.keymap.set("c", config.completion, function()
-        local cursor = utils.cursor_pos_in_subst_cmd()
-        if cursor == "search" then
-            local last_search_terms = state.get_last_search_terms()
-            local search_term_completion_index =
-                state.get_search_term_completion_index()
-            local item = last_search_terms[search_term_completion_index]
-            local new_search_term_completion_index = search_term_completion_index
-                        < #last_search_terms
-                    and search_term_completion_index + 1
-                or 1
-            state.set_search_term_completion_index(
-                new_search_term_completion_index
-            )
-            utils.insert_search_term(item)
-        elseif cursor == "replace" then
-            local last_replace_terms = state.get_last_replace_terms()
-            local replace_term_completion_index =
-                state.get_replace_term_completion_index()
-            local item = last_replace_terms[replace_term_completion_index]
-            local new_replace_term_completion_index = replace_term_completion_index
-                        < #last_replace_terms
-                    and replace_term_completion_index + 1
-                or 1
-            state.set_replace_term_completion_index(
-                new_replace_term_completion_index
-            )
-            utils.insert_replace_term(item)
-        end
-    end, {})
-
     vim.keymap.set("c", config.jump_forward, function()
         if utils.is_substitute_command() then
             movement.jump_to_replace()
@@ -91,8 +75,9 @@ M.teardown = function()
         vim.keymap.del("c", motion)
     end
     vim.keymap.del("c", config.toggle)
+    vim.keymap.del("c", "<C-i>")
     vim.keymap.del("c", "<CR>")
-    vim.keymap.del("c", config.completion)
+    vim.keymap.del("c", "/")
     vim.keymap.del("c", config.jump_forward)
     vim.keymap.del("c", config.jump_backward)
 end
