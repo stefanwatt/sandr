@@ -30,6 +30,7 @@ local M = {}
 
 ---@class SandrConfigUpdate
 ---@field toggle? string
+---@field toggle_ignore_case? string
 ---@field jump_forward? string
 ---@field jump_backward? string
 ---@field range? string
@@ -37,11 +38,13 @@ local M = {}
 
 ---@class SandrUserConfig
 ---@field toggle string
+---@field toggle_ignore_case string
 ---@field jump_forward string
 ---@field jump_backward string
 
 ---@class SandrConfig
 ---@field toggle string
+---@field toggle_ignore_case string
 ---@field jump_forward string
 ---@field jump_backward string
 ---@field range string
