@@ -1,13 +1,12 @@
-local matches = require("sandr.matches")
 local highlight = require("sandr.highlight")
+local utils = require("sandr.utils")
+local matches = require("sandr.matches")
 local state = require("sandr.state")
 local actions = require("sandr.actions")
 local input_options = require("sandr.input-options")
 
 local M = {}
 local visible = false
----@type vim.Position
-local cursor_pos = nil
 
 ---@type SandrInput
 local search_input = {
@@ -31,6 +30,12 @@ local function init_search_input(source_win_id)
 
         local current_match =
             matches.get_closest_match_after_cursor(new_matches, source_win_id)
+        if not current_match or not new_matches or #new_matches == 0 then
+            highlight.clear_highlights(bufnr)
+            return
+        end
+        state.set_matches(new_matches)
+        state.set_current_match(current_match)
         highlight.highlight_matches(new_matches, current_match, bufnr)
     end
 
@@ -55,7 +60,8 @@ local function init_replace_input(source_win_id)
     ---@param value string
     local function on_submit(value)
         vim.api.nvim_set_current_win(source_win_id)
-        actions.confirm(search_input.value, value)
+        local current_match = state.get_current_match()
+        actions.confirm(search_input.value, value, current_match)
         M.hide_dialog()
     end
 
@@ -103,7 +109,8 @@ local function hide_dialog()
 end
 
 ---@param input SandrInput
-local function set_exit_keymap(input)
+local function set_buffer_keymaps(input)
+    --TODO maybe this can go to keymaps.lua
     local lhs = state.get_config().toggle
     vim.keymap.set(
         { "n", "i", "x" },
@@ -111,6 +118,44 @@ local function set_exit_keymap(input)
         hide_dialog,
         { noremap = true, silent = true, buffer = input.nui_input.bufnr }
     )
+    vim.keymap.set({ "n", "i" }, "<Up>", function()
+        local current_match = state.get_current_match()
+        local current_matches = state.get_matches()
+        local prev_match =
+            matches.get_prev_match(current_match, current_matches)
+        if not prev_match then
+            return
+        end
+        state.set_current_match(prev_match)
+        local bufnr = vim.api.nvim_win_get_buf(input.source_win_id)
+        highlight.highlight_matches(current_matches, prev_match, bufnr)
+        local prev_match_line = prev_match.start.row
+        local current_win = vim.api.nvim_get_current_win()
+        vim.api.nvim_set_current_win(search_input.source_win_id)
+        if not utils.is_range_in_viewport(prev_match_line) then
+            utils.center_line(prev_match_line)
+        end
+        vim.api.nvim_set_current_win(current_win)
+    end, { noremap = true, silent = true, buffer = input.nui_input.bufnr })
+    vim.keymap.set({ "n", "i" }, "<Down>", function()
+        local current_match = state.get_current_match()
+        local current_matches = state.get_matches()
+        local next_match =
+            matches.get_next_match(current_match, current_matches)
+        if not next_match then
+            return
+        end
+        state.set_current_match(next_match)
+        local bufnr = vim.api.nvim_win_get_buf(input.source_win_id)
+        highlight.highlight_matches(current_matches, next_match, bufnr)
+        local next_match_line = next_match.start.row
+        local current_win = vim.api.nvim_get_current_win()
+        vim.api.nvim_set_current_win(search_input.source_win_id)
+        if not utils.is_range_in_viewport(next_match_line) then
+            utils.center_line(next_match_line)
+        end
+        vim.api.nvim_set_current_win(current_win)
+    end, { noremap = true, silent = true, buffer = input.nui_input.bufnr })
 end
 
 ---@param input SandrInput
@@ -120,7 +165,7 @@ local function show_input(input)
     end
     if not input.mounted then
         input.nui_input:mount()
-        set_exit_keymap(input)
+        set_buffer_keymaps(input)
         input.mounted = true
         return
     end

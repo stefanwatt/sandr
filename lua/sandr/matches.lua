@@ -88,4 +88,36 @@ function M.get_next_match(current_match, matches)
         or matches[current_index + 1]
 end
 
+---@param current_match SandrRange
+---@param matches SandrRange[]
+function M.get_prev_match(current_match, matches)
+    if current_match == nil then
+        print("must provide value for current_match")
+        return
+    end
+    local current_index = utils.index_of(matches, function(match)
+        return M.equals(match, current_match)
+    end)
+    if current_index == nil then
+        print("couldnt locate match in list of matches")
+        return
+    end
+    return current_index - 1 < 1 and matches[#matches]
+        or matches[current_index - 1]
+end
+
+---@param match SandrRange
+function M.centerViewportOnMatch(match)
+    local top_line = vim.fn.line("w0") -- Get the top line of the current window
+    local bot_line = vim.fn.line("w$") -- Get the bottom line of the current window
+    local match_line = match.start.row
+
+    -- Check if the match is outside the current viewport
+    if match_line < top_line or match_line > bot_line then
+        -- Center the viewport on the match
+        vim.api.nvim_win_set_cursor(0, { match_line, 0 }) -- Set cursor to the line of the match
+        vim.cmd("normal zz") -- Center the window view on the cursor line
+    end
+end
+
 return M

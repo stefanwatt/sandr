@@ -162,4 +162,38 @@ M.set_cmd_line = function(search_term, replace_term, visual, config)
     end)
 end
 
+---@param line number
+function M.is_range_in_viewport(line)
+    local top_line = vim.fn.line("w0")
+    local bot_line = vim.fn.line("w$")
+
+    local in_vp = line >= top_line and line <= bot_line
+    if in_vp then
+        print(
+            "line #"
+                .. line
+                .. " IS between line#"
+                .. top_line
+                .. " and line#"
+                .. bot_line
+        )
+    else
+        print(
+            "line #"
+                .. line
+                .. " IS NOT between line#"
+                .. top_line
+                .. " and line#"
+                .. bot_line
+        )
+    end
+    return in_vp
+end
+
+---@param line number
+function M.center_line(line)
+    vim.api.nvim_win_set_cursor(0, { line, 0 }) -- Set cursor to the line of the match
+    vim.cmd("normal zz") -- Center the window view on the cursor line
+end
+
 return M

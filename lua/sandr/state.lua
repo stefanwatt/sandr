@@ -9,6 +9,8 @@ local state = {
     last_replace_term = "",
     last_replace_terms = {},
     replace_term_completion_index = 1,
+    matches = {},
+    current_match = nil,
 }
 local M = {}
 
@@ -26,6 +28,25 @@ end
 M.get_config = function()
     return state.config or {}
 end
+
+---@param matches SandrRange[]
+M.set_matches = function(matches)
+    state.matches = matches
+end
+
+M.get_matches = function()
+    return state.matches
+end
+
+---@param match SandrRange
+M.set_current_match = function(match)
+    state.current_match = match
+end
+
+M.get_current_match = function()
+    return state.current_match
+end
+
 M.set_search_term_completion_index = function(index)
     state.search_term_completion_index = index
 end

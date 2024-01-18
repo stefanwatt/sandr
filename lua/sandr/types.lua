@@ -45,6 +45,8 @@
 --- @field last_replace_terms string[]
 --- @field replace_term_completion_index number
 --- @field config? SandrConfig
+--- @field matches? SandrRange[]
+--- @field current_match? SandrRange
 ---
 ---@class SandrPosition
 ---@field row number

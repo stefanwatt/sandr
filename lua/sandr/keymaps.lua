@@ -2,6 +2,7 @@ local dialog_manager = require("sandr.dialog-manager")
 local actions = require("sandr.actions")
 local state = require("sandr.state")
 
+--TODO teardown seems to not work properly
 local M = {}
 local default_modes = { "n", "i", "x" }
 local default_opts = { noremap = true, silent = true }
