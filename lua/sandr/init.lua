@@ -4,31 +4,7 @@ local dialog_manager = require("sandr.dialog-manager")
 local utils = require("sandr.utils")
 local state = require("sandr.state")
 
-local M = {}
----@class SandrArgs
----@field visual boolean
-
----@class SandrConfigUpdate
----@field toggle? string
----@field toggle_ignore_case? string
----@field jump_forward? string
----@field jump_backward? string
----@field range? string
----@field flags? string
-
----@class SandrUserConfig
----@field toggle string
----@field toggle_ignore_case string
----@field jump_forward string
----@field jump_backward string
-
----@class SandrConfig
----@field toggle string
----@field toggle_ignore_case string
----@field jump_forward string
----@field jump_backward string
----@field range string
----@field flags string
+---@type SandrConfig
 local default_config = {
     toggle = "<C-h>",
     toggle_ignore_case = "<C-i>",
@@ -38,6 +14,8 @@ local default_config = {
     flags = "gc",
 }
 local config = default_config
+
+local M = {}
 ---@param user_config? SandrUserConfig
 M.setup = function(user_config)
     config = vim.tbl_deep_extend("force", default_config, user_config or {})

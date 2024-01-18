@@ -1,0 +1,55 @@
+---@class SandrInput
+---@field value? string
+---@field mounted boolean
+---@field nui_input? NuiInput
+---@field source_win_id? number
+---@field prompt string
+---@field focused boolean
+
+---@class SandrKeymap
+---@field lhs string
+---@field rhs function
+---@field modes? string[]|string
+---@field opts? any
+---
+---@class SandrArgs
+---@field visual boolean
+
+---@class SandrConfigUpdate
+---@field toggle? string
+---@field toggle_ignore_case? string
+---@field jump_forward? string
+---@field jump_backward? string
+---@field range? string
+---@field flags? string
+
+---@class SandrUserConfig
+---@field toggle string
+---@field toggle_ignore_case string
+---@field jump_forward string
+---@field jump_backward string
+
+---@class SandrConfig
+---@field toggle string
+---@field toggle_ignore_case string
+---@field jump_forward string
+---@field jump_backward string
+---@field range string
+---@field flags string
+
+--- @class SandrState
+--- @field last_search_term string
+--- @field last_search_terms string[]
+--- @field search_term_completion_index number
+--- @field last_replace_term string
+--- @field last_replace_terms string[]
+--- @field replace_term_completion_index number
+--- @field config? SandrConfig
+---
+---@class SandrPosition
+---@field row number
+---@field col number
+---
+---@class SandrRange
+---@field start SandrPosition
+---@field finish SandrPosition

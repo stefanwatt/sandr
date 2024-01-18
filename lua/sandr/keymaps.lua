@@ -3,12 +3,6 @@ local actions = require("sandr.actions")
 local state = require("sandr.state")
 
 local M = {}
----@class SandrKeymap
----@field lhs string
----@field rhs function
----@field modes? string[]|string
----@field opts? any
-
 local default_modes = { "n", "i", "x" }
 local default_opts = { noremap = true, silent = true }
 

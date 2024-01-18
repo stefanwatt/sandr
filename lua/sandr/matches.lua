@@ -4,18 +4,18 @@ local M = {}
 ---@param line string
 ---@param row number
 ---@param search_term string
----@return vim.Range[]
+---@return SandrRange[]
 local function get_matches_of_line(line, row, search_term)
     local matches = {}
     local start, finish = string.find(line, search_term)
     while start and finish do
-        ---@type vim.Range
+        ---@type SandrRange
         local match = {
             start = {
                 col = start - 1,
                 row = row,
             },
-            ["end"] = {
+            finish = {
                 col = finish,
                 row = row,
             },
@@ -28,7 +28,7 @@ end
 
 ---@param bufnr number
 ---@param search_term string
----@return vim.Range[]
+---@return SandrRange[]
 function M.get_matches(bufnr, search_term)
     if not search_term or search_term == "" then
         print("must provide search_term")
@@ -39,9 +39,9 @@ function M.get_matches(bufnr, search_term)
     return utils.flat_map(lines, get_matches_of_line, search_term)
 end
 
----@param matches vim.Range[]
+---@param matches SandrRange[]
 ---@param win_id number
----@return vim.Range?
+---@return SandrRange?
 M.get_closest_match_after_cursor = function(matches, win_id)
     local closest_match = nil
     local cursor_row, cursor_col = unpack(vim.api.nvim_win_get_cursor(win_id))
@@ -50,7 +50,7 @@ M.get_closest_match_after_cursor = function(matches, win_id)
         local on_same_line = match.start.row == cursor_row
         local cursor_on_match = on_same_line
             and match.start.col <= cursor_col
-            and match["end"].col >= cursor_col
+            and match.finish.col >= cursor_col
         local on_same_line_after = not cursor_on_match
             and on_same_line
             and match.start.col >= cursor_col
@@ -60,17 +60,17 @@ M.get_closest_match_after_cursor = function(matches, win_id)
     end
 end
 
---- @param match1 vim.Range
---- @param match2 vim.Range
+--- @param match1 SandrRange
+--- @param match2 SandrRange
 function M.equals(match1, match2)
     return match1.start.col == match2.start.col
         and match1.start.row == match2.start.row
-        and match1["end"].col == match2["end"].col
-        and match1["end"].row == match2["end"].row
+        and match1.finish.col == match2.finish.col
+        and match1.finish.row == match2.finish.row
 end
 
----@param current_match vim.Range
----@param matches vim.Range[]
+---@param current_match SandrRange
+---@param matches SandrRange[]
 function M.get_next_match(current_match, matches)
     if current_match == nil then
         print("must provide value for current_match")

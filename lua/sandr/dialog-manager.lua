@@ -9,14 +9,6 @@ local visible = false
 ---@type vim.Position
 local cursor_pos = nil
 
----@class SandrInput
----@field value? string
----@field mounted boolean
----@field nui_input? NuiInput
----@field source_win_id? number
----@field prompt string
----@field focused boolean
-
 ---@type SandrInput
 local search_input = {
     mounted = false,
@@ -150,12 +142,10 @@ end
 M.hide_dialog = hide_dialog
 
 ---@param source_win_id number
----@param current_cursor_pos vim.Position
 ---@param search_term string
-M.show_dialog = function(source_win_id, current_cursor_pos, search_term)
+M.show_dialog = function(source_win_id, search_term)
+    --TODO apply highlighting when search_term is provided
     --TODO set search term
-
-    cursor_pos = current_cursor_pos
     if not replace_input.nui_input then
         init_replace_input(source_win_id)
     end

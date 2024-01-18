@@ -1,13 +1,7 @@
 local database = require("sandr.database")
 local utils = require("sandr.utils")
---- @class SandrState
---- @field last_search_term string
---- @field last_search_terms string[]
---- @field search_term_completion_index number
---- @field last_replace_term string
---- @field last_replace_terms string[]
---- @field replace_term_completion_index number
---- @field config? SandrConfig
+
+---@type SandrState
 local state = {
     last_search_term = "",
     last_search_terms = {},
