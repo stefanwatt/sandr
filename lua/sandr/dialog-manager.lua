@@ -1,9 +1,13 @@
+local matches = require("sandr.matches")
+local highlight = require("sandr.highlight")
 local state = require("sandr.state")
 local actions = require("sandr.actions")
 local input_options = require("sandr.input-options")
 
 local M = {}
 local visible = false
+---@type vim.Position
+local cursor_pos = nil
 
 ---@class SandrInput
 ---@field value? string
@@ -30,6 +34,12 @@ local function init_search_input(source_win_id)
     ---@param value string
     local function on_change(value)
         search_input.value = value
+        local bufnr = vim.api.nvim_win_get_buf(source_win_id)
+        local new_matches = matches.get_matches(bufnr, value)
+
+        local current_match =
+            matches.get_closest_match_after_cursor(new_matches, source_win_id)
+        highlight.highlight_matches(new_matches, current_match, bufnr)
     end
 
     local popup_opts, input_opts = input_options.get_search_input_options(
@@ -95,6 +105,8 @@ end
 local function hide_dialog()
     hide_input(search_input)
     hide_input(replace_input)
+    local bufnr = vim.api.nvim_win_get_buf(search_input.source_win_id)
+    highlight.clear_highlights(bufnr)
     visible = false
 end
 
@@ -138,10 +150,12 @@ end
 M.hide_dialog = hide_dialog
 
 ---@param source_win_id number
+---@param current_cursor_pos vim.Position
 ---@param search_term string
-M.show_dialog = function(source_win_id, search_term)
+M.show_dialog = function(source_win_id, current_cursor_pos, search_term)
     --TODO set search term
 
+    cursor_pos = current_cursor_pos
     if not replace_input.nui_input then
         init_replace_input(source_win_id)
     end

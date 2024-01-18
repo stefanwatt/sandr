@@ -1,28 +1,14 @@
 local M = {}
 
---- for some reason vim.fn.setcmdlinepos() doesn't work, but this does
----@param pos number
-M.set_cmd_line_pos = function(pos)
-    vim.fn.setcmdline(vim.fn.getcmdline(), pos)
-end
-
----@return string?
-M.get_cmd_line = function()
-    local cmdline = vim.fn.getcmdline()
-    if not M.is_substitute_command() then
-        return
+---@param table table
+---@param cb function(value: any): boolean
+M.index_of = function(table, cb)
+    for index, value in ipairs(table) do
+        if cb(value) then
+            return index
+        end
     end
-    return cmdline
-end
-
----@return boolean?
-M.is_substitute_command = function()
-    local cmdline = vim.fn.getcmdline()
-    if not cmdline or cmdline == "" then
-        return
-    end
-    local pattern = "^%%?s/.*/.*/[gci]*$"
-    return string.match(cmdline, pattern) ~= nil
+    return nil
 end
 
 M.buf_vtext = function()
@@ -37,77 +23,6 @@ M.buf_vtext = function()
     return tostring(text)
 end
 
----@param _cmdline? string
----@return number?, number?, number?
-M.get_slash_positions = function(_cmdline)
-    local cmdline = _cmdline or M.get_cmd_line()
-    if not cmdline then
-        return
-    end
-    local first_slash_pos, second_slash_pos =
-        cmdline:find("/"), cmdline:find("/", cmdline:find("/") + 1)
-    if not second_slash_pos then
-        return
-    end
-    local third_slash_pos = string.find(cmdline, "/", second_slash_pos + 1)
-    return first_slash_pos, second_slash_pos, third_slash_pos
-end
-
----@return "search" | "replace"  | "end" | nil
-M.cursor_pos_in_subst_cmd = function()
-    local cmdline = M.get_cmd_line()
-    if not cmdline then
-        return nil
-    end
-    local cursor_pos = vim.fn.getcmdpos()
-    local first_slash_pos, second_slash_pos, third_slash_pos =
-        M.get_slash_positions(cmdline)
-
-    if not first_slash_pos or not second_slash_pos then
-        return nil
-    end
-
-    if cursor_pos > first_slash_pos and cursor_pos <= second_slash_pos then
-        return "search"
-    elseif
-        third_slash_pos
-        and cursor_pos > second_slash_pos
-        and cursor_pos <= third_slash_pos
-    then
-        return "replace"
-    elseif third_slash_pos and cursor_pos > third_slash_pos then
-        return "end"
-    else
-        return nil
-    end
-end
-
----@param term string
-M.insert_search_term = function(term)
-    local first_slash_pos, second_slash_pos, _ = M.get_slash_positions()
-    if not first_slash_pos or not second_slash_pos then
-        return
-    end
-    vim.fn.setcmdline(
-        vim.fn.getcmdline():sub(1, first_slash_pos)
-            .. term
-            .. vim.fn.getcmdline():sub(second_slash_pos)
-    )
-end
-
----@param term string
-M.insert_replace_term = function(term)
-    local _, second_slash_pos, third_slash_pos = M.get_slash_positions()
-    if not third_slash_pos or not second_slash_pos then
-        return
-    end
-    vim.fn.setcmdline(
-        vim.fn.getcmdline():sub(1, second_slash_pos)
-            .. term
-            .. vim.fn.getcmdline():sub(third_slash_pos)
-    )
-end
-
 ---@generic T
 ---@param list `T`[]
 ---@param cb function(value: `T`): `T`
@@ -115,6 +30,19 @@ M.map = function(list, cb)
     local result = {}
     for _, value in ipairs(list) do
         table.insert(result, cb(value))
+    end
+    return result
+end
+
+M.flat_map = function(list, cb, ...)
+    local result = {}
+    local index = 1
+    for _, value in ipairs(list) do
+        local mapped = cb(value, index, ...)
+        for _, mapped_value in ipairs(mapped) do
+            table.insert(result, mapped_value)
+        end
+        index = index + 1
     end
     return result
 end
@@ -212,10 +140,6 @@ M.substitute_loop_around = function(pattern, replacement)
                 .. flags
         )
     end
-end
-
-M.substitute_all = function(pattern, replacement)
-    vim.cmd("%s/" .. pattern .. "/" .. replacement .. "/g")
 end
 
 ---@param search_term string
