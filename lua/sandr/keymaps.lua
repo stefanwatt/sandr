@@ -7,12 +7,11 @@ local M = {}
 local default_modes = { "n", "i", "x" }
 local default_opts = { noremap = true, silent = true }
 
----@param config SandrConfig
 ---@return SandrKeymap[]
-local function get_keymaps(config)
+local function get_keymaps()
     return {
         {
-            lhs = config.toggle_ignore_case,
+            lhs = Config.toggle_ignore_case,
             rhs = actions.toggle_ignore_case,
         },
         {
@@ -24,7 +23,7 @@ local function get_keymaps(config)
             end,
         },
         {
-            lhs = config.jump_forward,
+            lhs = Config.jump_forward,
             rhs = function()
                 dialog_manager.jump()
             end,
@@ -33,8 +32,7 @@ local function get_keymaps(config)
 end
 
 M.setup = function()
-    local config = state.get_config()
-    local keymaps = get_keymaps(config)
+    local keymaps = get_keymaps()
     for _, keymap in pairs(keymaps) do
         vim.keymap.set(
             keymap.modes or default_modes,
@@ -46,8 +44,7 @@ M.setup = function()
 end
 
 M.teardown = function()
-    local config = state.get_config()
-    local keymaps = get_keymaps(config)
+    local keymaps = get_keymaps()
     for _, keymap in pairs(keymaps) do
         vim.keymap.del(keymap.modes or default_modes, keymap.lhs)
     end

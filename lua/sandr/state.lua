@@ -14,57 +14,50 @@ local state = {
 }
 local M = {}
 
----@param config SandrConfig
-M.set_config = function(config)
-    state.config = config
-end
-
 ---@param config SandrConfigUpdate
-M.update_config = function(config)
-    state.config = vim.tbl_deep_extend("force", state.config or {}, config)
-end
-
----@return SandrConfig
-M.get_config = function()
-    return state.config or {}
+function M.update_config(config)
+    Congig = vim.tbl_deep_extend("force", Config or {}, config)
 end
 
 ---@param matches SandrRange[]
-M.set_matches = function(matches)
+function M.set_matches(matches)
     state.matches = matches
 end
 
-M.get_matches = function()
+function M.get_matches()
     return state.matches
 end
 
 ---@param match SandrRange
-M.set_current_match = function(match)
+function M.set_current_match(match)
     state.current_match = match
 end
 
-M.get_current_match = function()
+function M.get_current_match()
     return state.current_match
 end
 
-M.set_search_term_completion_index = function(index)
+function M.set_search_term_completion_index(index)
     state.search_term_completion_index = index
 end
-M.get_search_term_completion_index = function()
+
+function M.get_search_term_completion_index()
     return state.search_term_completion_index
 end
-M.set_replace_term_completion_index = function(index)
+
+function M.set_replace_term_completion_index(index)
     state.replace_term_completion_index = index
 end
-M.get_replace_term_completion_index = function()
+
+function M.get_replace_term_completion_index()
     return state.replace_term_completion_index
 end
 
-M.get_last_search_term = function()
+function M.get_last_search_term()
     return state.last_search_term
 end
 
-M.set_last_search_term = function(search_term)
+function M.set_last_search_term(search_term)
     state.last_search_term = search_term
     if
         not search_term
@@ -84,11 +77,11 @@ M.set_last_search_term = function(search_term)
     database.save_search_terms(state.last_search_terms)
 end
 
-M.get_last_replace_term = function()
+function M.get_last_replace_term()
     return state.last_replace_term
 end
 
-M.set_last_replace_term = function(replace_term)
+function M.set_last_replace_term(replace_term)
     state.last_replace_term = replace_term
     if
         not replace_term
@@ -108,15 +101,15 @@ M.set_last_replace_term = function(replace_term)
     database.save_replace_terms(state.last_replace_terms)
 end
 
-M.get_last_search_terms = function()
+function M.get_last_search_terms()
     return state.last_search_terms
 end
 
-M.get_last_replace_terms = function()
+function M.get_last_replace_terms()
     return state.last_replace_terms
 end
 
-M.read_from_db = function()
+function M.read_from_db()
     state.last_search_terms = database.load_search_terms()
     state.last_replace_terms = database.load_replace_terms()
 end

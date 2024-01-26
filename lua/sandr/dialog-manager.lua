@@ -111,7 +111,7 @@ end
 ---@param input SandrInput
 local function set_buffer_keymaps(input)
     --TODO maybe this can go to keymaps.lua
-    local lhs = state.get_config().toggle
+    local lhs = Config.toggle
     vim.keymap.set(
         { "n", "i", "x" },
         lhs,

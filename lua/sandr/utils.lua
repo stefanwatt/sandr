@@ -110,7 +110,7 @@ M.parse_ext_cmdline_args = function(args)
 end
 
 M.substitute_loop_around = function(pattern, replacement)
-    local flags = state.getconfig
+    local flags = Config.flags
     local current_line = vim.fn.line(".")
     local last_line = vim.fn.line("$")
     vim.api.nvim_input("<CR>")

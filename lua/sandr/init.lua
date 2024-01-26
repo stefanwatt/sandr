@@ -13,18 +13,19 @@ local default_config = {
     range = "%",
     flags = "gc",
 }
-local config = default_config
+Config = default_config
 
 local M = {}
+
 ---@param user_config? SandrUserConfig
-M.setup = function(user_config)
-    config = vim.tbl_deep_extend("force", default_config, user_config or {})
+function M.setup(user_config)
+    Config = vim.tbl_deep_extend("force", default_config, user_config or {})
         or default_config
     state.read_from_db()
-    state.set_config(config) -- needs to be called before setting keymaps
 end
+
 ---@param args SandrArgs
-M.search_and_replace = function(args)
+function M.search_and_replace(args)
     keymaps.setup()
     local selection = args.visual and utils.buf_vtext() or ""
     dialog_manager.show_dialog(vim.api.nvim_get_current_win(), selection)

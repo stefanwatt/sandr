@@ -48,8 +48,7 @@ function M.toggle()
 end
 
 function M.toggle_ignore_case()
-    local current_config = state.get_config()
-    if current_config.flags == "gci" then
+    if Config.flags == "gci" then
         state.update_config({ flags = "gc" })
     else
         state.update_config({ flags = "gci" })
@@ -61,7 +60,10 @@ end
 ---@param starting_match SandrRange
 ---substitute with loop-around
 function M.confirm(pattern, replacement, starting_match)
-    local flags = state.get_config().flags
+    --TODO when you press q on the prompt of the first substitute command
+    --then it should stop the loop-around
+    --but it will execute the second and third still
+    local flags = Config.flags
     local current_line = starting_match.start.row
     local last_line = vim.fn.line("$")
     if not current_line or not last_line then
