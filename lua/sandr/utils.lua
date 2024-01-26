@@ -1,4 +1,3 @@
-local utils = require("sandr.utils")
 local M = {}
 
 ---@param table table

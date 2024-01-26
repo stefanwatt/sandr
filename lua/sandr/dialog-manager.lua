@@ -8,6 +8,11 @@ local input_options = require("sandr.input-options")
 local M = {}
 local visible = false
 
+---@class SandrHooks
+---@field on_hide fun()[]
+M.hooks = {
+    on_hide = {},
+}
 ---@type SandrInput
 local search_input = {
     mounted = false,
@@ -103,6 +108,9 @@ end
 local function hide_dialog()
     hide_input(search_input)
     hide_input(replace_input)
+    for _, cb in ipairs(M.hooks.on_hide) do
+        cb()
+    end
     local bufnr = vim.api.nvim_win_get_buf(search_input.source_win_id)
     highlight.clear_highlights(bufnr)
     visible = false
