@@ -53,7 +53,7 @@ end
 ---@param on_submit function(value: string)
 ---@param on_change function(value: string)
 ---@return nui_popup_options, nui_input_options
-M.get_search_input_options = function(source_win_id, on_submit, on_change)
+function M.get_search_input_options(source_win_id, on_submit, on_change)
     return get_popup_options(
         SEARCH_DIALOG_TITLE,
         SEARCH_DIALOG_ROW,
@@ -66,7 +66,7 @@ end
 ---@param on_submit function(value: string)
 ---@param on_change function(value: string)
 ---@return nui_popup_options, nui_input_options
-M.get_replace_input_options = function(source_win_id, on_submit, on_change)
+function M.get_replace_input_options(source_win_id, on_submit, on_change)
     return get_popup_options(
         REPLACE_DIALOG_TITLE,
         REPLACE_DIALOG_ROW,
@@ -74,4 +74,5 @@ M.get_replace_input_options = function(source_win_id, on_submit, on_change)
     ),
         get_input_options("Replace", on_submit, on_change)
 end
+
 return M

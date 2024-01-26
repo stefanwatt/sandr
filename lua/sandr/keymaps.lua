@@ -31,7 +31,7 @@ local function get_keymaps()
     }
 end
 
-M.setup = function()
+function M.setup()
     local keymaps = get_keymaps()
     for _, keymap in pairs(keymaps) do
         vim.keymap.set(
@@ -43,7 +43,7 @@ M.setup = function()
     end
 end
 
-M.teardown = function()
+function M.teardown()
     local keymaps = get_keymaps()
     for _, keymap in pairs(keymaps) do
         vim.keymap.del(keymap.modes or default_modes, keymap.lhs)

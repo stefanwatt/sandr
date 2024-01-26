@@ -177,18 +177,19 @@ end
 -----------------------------------EXPORTS------------------------------------------------
 ------------------------------------------------------------------------------------------
 
-M.jump = function()
+function M.jump()
     if search_input.focused then
         focus_replace_input()
     else
         focus_search_input()
     end
 end
+
 M.hide_dialog = hide_dialog
 
 ---@param source_win_id number
 ---@param search_term string
-M.show_dialog = function(source_win_id, search_term)
+function M.show_dialog(source_win_id, search_term)
     --TODO apply highlighting when search_term is provided
     --TODO set search term
     if not replace_input.nui_input then
@@ -203,16 +204,16 @@ M.show_dialog = function(source_win_id, search_term)
 end
 
 ---@return string search_term
-M.get_search_term = function()
+function M.get_search_term()
     return search_input.value
 end
 
 ---@return string replace_term
-M.get_replace_term = function()
+function M.get_replace_term()
     return replace_input.value
 end
 
-M.replace_all = function()
+function M.replace_all()
     vim.api.nvim_set_current_win(search_input.source_win_id)
     actions.replace_all(search_input.value, replace_input.value)
 end

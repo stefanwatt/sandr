@@ -1,8 +1,9 @@
+local utils = require("sandr.utils")
 local M = {}
 
 ---@param table table
 ---@param cb function(value: any): boolean
-M.index_of = function(table, cb)
+function M.index_of(table, cb)
     for index, value in ipairs(table) do
         if cb(value) then
             return index
@@ -11,7 +12,7 @@ M.index_of = function(table, cb)
     return nil
 end
 
-M.buf_vtext = function()
+function M.buf_vtext()
     local a_orig = vim.fn.getreg("a")
     local mode = vim.fn.mode()
     if mode ~= "v" and mode ~= "V" then
@@ -26,7 +27,7 @@ end
 ---@generic T
 ---@param list `T`[]
 ---@param cb function(value: `T`): `T`
-M.map = function(list, cb)
+function M.map(list, cb)
     local result = {}
     for _, value in ipairs(list) do
         table.insert(result, cb(value))
@@ -34,7 +35,7 @@ M.map = function(list, cb)
     return result
 end
 
-M.flat_map = function(list, cb, ...)
+function M.flat_map(list, cb, ...)
     local result = {}
     local index = 1
     for _, value in ipairs(list) do
@@ -51,27 +52,13 @@ end
 ---@param list `T`[]
 ---@param cb function(value: `T`): `T`
 ---@return `T` | nil
-M.find = function(list, cb)
+function M.find(list, cb)
     for _, value in ipairs(list) do
         if cb(value) then
             return value
         end
     end
     return nil
-end
-
----Validates args for `throttle()` and  `debounce()`.
-local function td_validate(fn, ms)
-    vim.validate({
-        fn = { fn, "f" },
-        ms = {
-            ms,
-            function(ms)
-                return type(ms) == "number" and ms > 0
-            end,
-            "number > 0",
-        },
-    })
 end
 
 --- Debounces a function on the leading edge. Automatically `schedule_wrap()`s.
@@ -102,14 +89,14 @@ end
 --- @return string: text
 --- @return number: cursor_pos
 --- @return string: prefix
-M.parse_ext_cmdline_args = function(args)
+function M.parse_ext_cmdline_args(args)
     local text = args[1][1][2]
     local cursor_pos = args[2]
     local prefix = args[3]
     return text, cursor_pos, prefix
 end
 
-M.substitute_loop_around = function(pattern, replacement)
+function M.substitute_loop_around(pattern, replacement)
     local flags = Config.flags
     local current_line = vim.fn.line(".")
     local last_line = vim.fn.line("$")
@@ -146,7 +133,7 @@ end
 ---@param replace_term string
 ---@param visual boolean
 ---@param config SandrConfig
-M.set_cmd_line = function(search_term, replace_term, visual, config)
+function M.set_cmd_line(search_term, replace_term, visual, config)
     local cmdline = config.range
         .. "s/"
         .. search_term
@@ -166,7 +153,6 @@ end
 function M.is_range_in_viewport(line)
     local top_line = vim.fn.line("w0")
     local bot_line = vim.fn.line("w$")
-
     local in_vp = line >= top_line and line <= bot_line
     if in_vp then
         print(

@@ -42,8 +42,7 @@ end
 ---@param matches SandrRange[]
 ---@param win_id number
 ---@return SandrRange?
-M.get_closest_match_after_cursor = function(matches, win_id)
-    local closest_match = nil
+function M.get_closest_match_after_cursor(matches, win_id)
     local cursor_row, cursor_col = unpack(vim.api.nvim_win_get_cursor(win_id))
     for _, match in ipairs(matches) do
         local on_line_after = match.start.row > cursor_row
@@ -81,7 +80,7 @@ function M.get_next_match(current_match, matches)
         return M.equals(match, current_match)
     end)
     if current_index == nil then
-        print("couldnt locate match in list of matches")
+        print("couldn't locate match in list of matches")
         return
     end
     return current_index + 1 > #matches and matches[1]
@@ -99,7 +98,7 @@ function M.get_prev_match(current_match, matches)
         return M.equals(match, current_match)
     end)
     if current_index == nil then
-        print("couldnt locate match in list of matches")
+        print("couldn't locate match in list of matches")
         return
     end
     return current_index - 1 < 1 and matches[#matches]

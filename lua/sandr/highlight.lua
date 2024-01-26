@@ -21,29 +21,28 @@ local function apply_highlight(match, buf_id, hl_group)
     )
 end
 
+local M = {}
+
 ---@param bufnr number
-local function clear_highlights(bufnr)
+function M.clear_highlights(bufnr)
     vim.api.nvim_buf_clear_namespace(bufnr, -1, 0, -1)
 end
 
-local M = {}
-
-M.clear_highlights = clear_highlights
 ---@param matches SandrRange[]?
 ---@param current_match SandrRange?
 ---@param bufnr number
-M.highlight_matches = function(matches, current_match, bufnr)
+function M.highlight_matches(matches, current_match, bufnr)
     if not matches then
         print("no matches to be highlighted")
-        clear_highlights(bufnr)
+        M.clear_highlights(bufnr)
         return
     end
     if not current_match then
         print("must provide current match to highlight")
-        clear_highlights(bufnr)
+        M.clear_highlights(bufnr)
         return
     end
-    clear_highlights(bufnr)
+    M.clear_highlights(bufnr)
     for _, match in ipairs(matches) do
         local hl_group = match_equals(match, current_match)
                 and HL_GROUP_CURRENT_MATCH
