@@ -72,7 +72,7 @@ function M.setup()
     local keymaps = get_keymaps()
     for _, keymap in pairs(keymaps) do
         local modes = keymap.modes or default_modes
-        save_original_keymap(modes, keymap.lhs) -- Save original keymap before overriding
+        save_original_keymap(modes, keymap.lhs)
         vim.keymap.set(
             modes,
             keymap.lhs,

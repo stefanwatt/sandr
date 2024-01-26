@@ -111,6 +111,7 @@ local function hide_dialog()
     for _, cb in ipairs(M.hooks.on_hide) do
         cb()
     end
+    M.hooks.on_hide = {}
     local bufnr = vim.api.nvim_win_get_buf(search_input.source_win_id)
     highlight.clear_highlights(bufnr)
     visible = false
