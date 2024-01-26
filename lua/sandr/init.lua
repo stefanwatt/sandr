@@ -28,7 +28,13 @@ end
 function M.search_and_replace(args)
     keymaps.setup()
     local selection = args.visual and utils.buf_vtext() or ""
-    dialog_manager.show_dialog(vim.api.nvim_get_current_win(), selection)
+    local current_win = vim.api.nvim_get_current_win()
+    dialog_manager.show_dialog(current_win, selection)
+    table.insert(dialog_manager.hooks.on_hide, function()
+        vim.schedule(function()
+            vim.api.nvim_set_current_win(current_win)
+        end)
+    end)
 end
 
 return M

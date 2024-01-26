@@ -21,7 +21,7 @@ local search_input = {
 }
 
 ---@param source_win_id number
-local function init_search_input(source_win_id)
+local function get_search_input_options(source_win_id)
     ---@param value string
     local function on_submit(value)
         --TODO
@@ -49,6 +49,11 @@ local function init_search_input(source_win_id)
         on_submit,
         on_change
     )
+    return popup_opts, input_opts
+end
+---@param source_win_id number
+local function init_search_input(source_win_id)
+    local popup_opts, input_opts = get_search_input_options(source_win_id)
     search_input.nui_input = require("nui.input")(popup_opts, input_opts)
     search_input.source_win_id = source_win_id
 end
@@ -60,8 +65,7 @@ local replace_input = {
     focused = false,
 }
 
----@param source_win_id number
-local function init_replace_input(source_win_id)
+local function get_replace_input_options(source_win_id)
     ---@param value string
     local function on_submit(value)
         vim.api.nvim_set_current_win(source_win_id)
@@ -79,6 +83,11 @@ local function init_replace_input(source_win_id)
         on_submit,
         on_change
     )
+    return popup_opts, input_opts
+end
+---@param source_win_id number
+local function init_replace_input(source_win_id)
+    local popup_opts, input_opts = get_replace_input_options(source_win_id)
     replace_input.nui_input = require("nui.input")(popup_opts, input_opts)
     replace_input.source_win_id = source_win_id
 end
@@ -115,6 +124,7 @@ local function hide_dialog()
     local bufnr = vim.api.nvim_win_get_buf(search_input.source_win_id)
     highlight.clear_highlights(bufnr)
     visible = false
+    vim.api.nvim_set_current_win(search_input.source_win_id)
 end
 
 ---@param input SandrInput
@@ -167,8 +177,10 @@ local function set_buffer_keymaps(input)
     end, { noremap = true, silent = true, buffer = input.nui_input.bufnr })
 end
 
+---@param popup_opts nui_layout_options
+---@param input_opts nui_input_options
 ---@param input SandrInput
-local function show_input(input)
+local function show_input(input, popup_opts, input_opts)
     if visible then
         return
     end
@@ -178,7 +190,7 @@ local function show_input(input)
         input.mounted = true
         return
     end
-
+    input.nui_input.update_layout(input.nui_input, popup_opts)
     input.nui_input:show()
 end
 
@@ -207,8 +219,10 @@ function M.show_dialog(source_win_id, search_term)
     if not search_input.nui_input then
         init_search_input(source_win_id)
     end
-    show_input(replace_input)
-    show_input(search_input)
+    local popup_opts, input_opts = get_replace_input_options(source_win_id)
+    show_input(replace_input, popup_opts, input_opts)
+    popup_opts, input_opts = get_search_input_options(source_win_id)
+    show_input(search_input, popup_opts, input_opts)
     visible = true
 end
 
