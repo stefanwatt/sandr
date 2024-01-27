@@ -2,7 +2,7 @@
 
 # Sandr
 
-##### Hacking the builtin search and replace for better ergonomics
+##### An nui based frontend for the builtin substitute command
 
 [![Lua](https://img.shields.io/badge/Lua-blue.svg?style=for-the-badge&logo=lua)](http://www.lua.org)
 [![Neovim](https://img.shields.io/badge/Neovim%200.5+-green.svg?style=for-the-badge&logo=neovim)](https://neovim.io)
@@ -20,35 +20,58 @@
 
 <!--toc:end-->
 
-## WIP
+## 🚨🚨🚨ALPHA🚨🚨🚨
 
-If you experience any issues, see some improvement you think would be amazing, or just have some
-feedback for sandr (or me), make an issue!
+This is not ready for the public yet. Expect bugs.
+At the moment I consider this project mostly a learning experience for me.
 
 ## Search and replace in neovim
 
 seems to be something that keeps coming up as a pain point every now and then. I do like the builtin substitute command (something like :s/foo/bar/gc ), but there's some things that just work better for me ootb with the implementation in VSCode or IntelliJ.
 
-## What I don't like/what I'm missing
+## Why?
 
 <ol>
-    <li id="problem_boilerplate">I don't want to type the "boilerplate" every time. It's nice that there's lot's of different options, but 95% of the time I just do a quick plain text replace.</li>
+    <li>I just want something more convenient to cover 95% of my use cases.</li>
+    <li id="problem_loop">
+        The builtin substitute command offers no way to loop-around.
+        If you want to replace in the entire buffer your only option is
+        to use `%s/foo/bar/gc`, but this will always jump you to the beginning of the buffer, which is kinda jarring.
+        If you instead start replacing from the current line, then obviously you will miss all the matches that are before your cursor.
+    </li>
+    <li id="problem_column">The builtin substitute command does not offer a way to specify the column to start from</li>
+    <li id="problem_boilerplate">I don't want to type the "boilerplate" every time.</li>
     <li id="problem_visual">I want to be able to prefill the search term with my visual selection</li>
-    <li id="problem_remember">When toggling the search and replace dialog, I want the previous search/replace terms to be remembered and set as the default, but...
-</li>
-    <li id="problem_typing">... I also want to be able to start typing right away if I want to search/replace something different
-</li>
     <li id="problem_jump">I want to be able to jump between search and replace term easily with a keymap</li>
+    <li id="problem_gui">I prefer a graphical dialog in the top right corner of my buffer where it's least likely to block text</li>
 </ol>
 
-## How I tried to solve these things
+## How does this plugin work?
 
-To solve <a href="#problem_boilerplate">1</a> I can just create a simple keymap that abstracts away the "boilerplate" and puts the cursor at the correct spot. Even if I'm not saving keystrokes it's less mental overhead for me.
+Running
 
-<a href="#problem_visual">2</a> is pretty trivial to solve with another keymap that first reads the visual selection, but nonetheless very useful for me to have.
-Maybe it's a little easier to understand with some example usages. Assuming `<C-h>` as main keymap, `<Tab>` to jump forward, `<S-Tab>` to jump backward and `<C-Space>` to cycle through list of last terms would be.
+```lua
+require("sandr").search_and_replace({})
+```
 
-<a href="#problem_remember">3</a>, <a href="#problem_typing">4</a>, and <a href="#problem_jump">5</a> were a little more challenging since you can't just highlight text and "type over it" in neovim as you could in a non-modal editor. So the solution I came up with was to not prefill anything, but still remember the last search/replace term(s). Then add a keymap in command line mode to jump to the next position (search->replace->flags). This keymap will also trigger autofill of the last search term. Additionally I provide the option for a third keymap to cycle through the last 10 search/replace terms. This is also stored in a json file and therefore persisted through sessions.
+will bring up an nui based dialog in the top right corner of the screen, that should look similar to what you might be used to from IDEs.
+Start typing to highlight matches of the search term. Use `<Tab>` to jump to the replace term input.
+Start typing your replace term and hit `<CR>` to start replacing. From now on you're just in the builtin substitute command with the confirm flag set.
+So the keymaps that are shown on the bottom of the screen apply. However there's actually three substitute commands running in sequence.
+
+1. Using regex, only replace on the current line starting after the cursor column.
+2. Replace from the next line until the end of the buffer.
+3. replace from the beginning of the buffer until the current line.
+
+So as expected you will start replacing from after your current and loop back around to where you started.
+If you don't want to confirm every match you can just use `<S-CR>` to while in the replace input to repace all matches in the buffer.
+You can visually select text and then hit `<C-h>` to prefill the search term with the visual selection.
+
+All these keymaps are just the default and can be configured of course.
+
+Here's a quick demo:
+
+<img style="width:100%;" src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExcWQ0N3huZjdiYWI0YXk3ZTBiZzNsc3VxbGRrYXVmZ29mbG55Z3BmdiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/ai2QN6xTM5nOb6UWQS/giphy.gif">
 
 ## Installation
 
@@ -85,18 +108,3 @@ Maybe it's a little easier to understand with some example usages. Assuming `<C-
 	}
 
 ```
-
-## Example Usage:
-
-Maybe it's a little easier to understand with some examples. Assuming `<C-h>` as main keymap, `<Tab>` to jump forward, `<S-Tab>` to jump backward and `<C-Space>` to cycle through list of last terms:
-
--   `<C-h>foo<Tab>bar<CR>` Most simple case. Just prefilling the boilerplate. Could also use `<Right>` instead of `<Tab>`. Note that if there's a search term value present then it will not be replaced with the last search term when jumping.
--   `<C-h><Tab><Tab><CR>` This will just start search and replace with both the previous search and replace term. Here since the user hasn't typed anything as search term before `<Tab>` we will assume that it's desirable to auto fill with the last search term.
--   `<C-h><Tab>baz<CR>` Actually I want to replace the search term with something different
--   `viw<C-h>foo<CR>` Use word under cursor as search term and replace with `"foo"`
--   `<C-h>foo<Right>bar<S-Tab>baz<CR>` Actually I want to replace `"baz"` with `"bar"` not `"foo"` with `"bar"`. Jumping backwards will not replace the value with the last term. That just felt more natural to me.
--   `<C-h><C-Space><C-Space><C-Space><Tab>foo<CR>` I want to replace the third last search term with `"foo"`. Honestly not sure how useful this is, but why not.
-
-## The Challenges:
-
-What I really hated when implementing this is that apparently there's no api to interact with the command line in the same way you can with a buffer with `vim.api.nvim_buf_set_lines` or w/e. So I had to manually move the cursor around with `vim.api.nvim_feedkeys` and `<Left>`,`<Right>`,`<BS>`. It works, but it's ugly. Please let me know if there's an easier way to do this.
