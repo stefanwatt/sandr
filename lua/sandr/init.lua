@@ -8,8 +8,7 @@ local state = require("sandr.state")
 local default_config = {
     toggle = "<C-h>",
     toggle_ignore_case = "<C-i>",
-    jump_forward = "<Tab>",
-    jump_backward = "<S-Tab>",
+    jump = "<Tab>",
     range = "%",
     flags = "gc",
 }

@@ -64,7 +64,7 @@ end
 ---@param starting_match SandrRange
 ---substitute with loop-around
 function M.confirm(pattern, replacement, starting_match)
-    --TODO when you press q on the prompt of the first substitute command
+    --TODO when you press q or Esc on the prompt of the first substitute command
     --then it should stop the loop-around
     --but it will execute the second and third still
     local flags = Config.flags

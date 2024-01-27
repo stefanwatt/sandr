@@ -60,30 +60,6 @@ function M.find(list, cb)
     return nil
 end
 
---- Debounces a function on the leading edge. Automatically `schedule_wrap()`s.
----@param fn function Function to debounce
----@param timeout number Timeout in ms
----@return function `debounced function`
----@return uv_timer_t `timer`
----Remember to call `timer:close()` at the end or you will leak memory!
-function M.debounce(fn, timeout)
-    td_validate(fn, timeout)
-    local timer = vim.loop.new_timer()
-    local running = false
-
-    local function wrapped_fn(...)
-        timer:start(timeout, 0, function()
-            running = false
-        end)
-
-        if not running then
-            running = true
-            pcall(vim.schedule_wrap(fn), select(1, ...))
-        end
-    end
-    return wrapped_fn, timer
-end
-
 --- @param args table: The unstructured argument list.
 --- @return string: text
 --- @return number: cursor_pos

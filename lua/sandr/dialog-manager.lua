@@ -68,10 +68,7 @@ local replace_input = {
 local function get_replace_input_options()
     ---@param value string
     local function on_submit(value)
-        print("replace_input_submit")
-        print("hooks=" .. vim.inspect(hooks))
         for _, sandr_hook_cb in ipairs(hooks.replace_input_submit) do
-            print("running cb: " .. sandr_hook_cb.name)
             sandr_hook_cb.cb(search_input.value, value)
         end
     end
@@ -109,6 +106,11 @@ local function hide_input(input)
     if not input.mounted or not visible then
         return
     end
+    input.value = ""
+    local bufnr = input.nui_input.bufnr
+    if bufnr then
+        vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, {})
+    end
     input.nui_input:hide()
 end
 
@@ -138,6 +140,9 @@ local function show_search_input()
     local popup_opts, input_opts = get_search_input_options()
     search_input.nui_input.update_layout(search_input.nui_input, popup_opts)
     search_input.nui_input:show()
+    vim.schedule(function()
+        vim.api.nvim_input("<Tab>")
+    end)
 end
 
 local function show_replace_input()
@@ -161,8 +166,10 @@ end
 
 function M.jump()
     if search_input.focused then
+        print("focus_replace_input")
         focus_replace_input()
     else
+        print("focus_search_input")
         focus_search_input()
     end
 end
@@ -194,6 +201,7 @@ function M.show_dialog(search_term)
     end
     show_replace_input()
     show_search_input()
+    search_input.focused = true
     visible = true
     return search_input.nui_input.bufnr, replace_input.nui_input.bufnr
 end

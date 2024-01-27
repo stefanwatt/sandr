@@ -18,22 +18,19 @@
 ---@class SandrConfigUpdate
 ---@field toggle? string
 ---@field toggle_ignore_case? string
----@field jump_forward? string
----@field jump_backward? string
+---@field jump? string
 ---@field range? string
 ---@field flags? string
 
 ---@class SandrUserConfig
 ---@field toggle string
 ---@field toggle_ignore_case string
----@field jump_forward string
----@field jump_backward string
+---@field jump string
 
 ---@class SandrConfig
 ---@field toggle string
 ---@field toggle_ignore_case string
----@field jump_forward string
----@field jump_backward string
+---@field jump string
 ---@field range string
 ---@field flags string
 

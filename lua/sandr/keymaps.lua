@@ -13,6 +13,9 @@ local function setup_buffer_local_keymaps(
     replace_input_bufnr
 )
     local buffers = { search_input_bufnr, replace_input_bufnr }
+    vim.keymap.set({ "n", "i", "x" }, "<CR>", function()
+        --noop
+    end, { noremap = true, silent = true, buffer = search_input_bufnr })
     for _, bufnr in ipairs(buffers) do
         vim.keymap.set(
             { "n", "i", "x" },
@@ -50,8 +53,9 @@ local function get_keymaps()
             end,
         },
         {
-            lhs = Config.jump_forward,
+            lhs = Config.jump,
             rhs = function()
+                print("jump")
                 dialog_manager.jump()
             end,
         },
@@ -125,8 +129,8 @@ function M.setup(search_input_bufnr, replace_input_bufnr)
     -- )
     dialog_manager.on("replace_input_submit", {
         cb = function(search_term, replace_term)
-            actions.replace_input_submit(search_term, replace_term)
             dialog_manager.hide_dialog()
+            actions.replace_input_submit(search_term, replace_term)
         end,
         name = "replace_input_submit",
     })

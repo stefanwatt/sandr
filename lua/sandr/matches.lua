@@ -39,7 +39,6 @@ end
 ---@return SandrRange[]
 function M.get_matches(bufnr, search_term)
     if not search_term or search_term == "" then
-        print("must provide search_term")
         return {}
     end
     local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
