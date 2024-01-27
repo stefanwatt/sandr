@@ -79,32 +79,31 @@ Here's a quick demo:
 
 ```lua
 {
-		"stefanwatt/sandr",
-		opts = {
-			jump_forward = "<Tab>",
-			jump_backward = "<S-Tab>",
-			completion = "<C-Space>",
-            range = "" -- see :h Range
-            flags = "gc" --see :h :s_flags
-		},
-		keys = {
-			{
-				"<C-h>",
-				mode = { "n" },
-				function()
-					require("sandr").search_and_replace({})
-				end,
-				desc = "Search and replace",
-			},
-			{
-				"<C-h>",
-				mode = { "v" },
-				function()
-					require("sandr").search_and_replace({ visual = true })
-				end,
-				desc = "Search and replace visual",
-			},
-		},
-	}
-
+    "stefanwatt/sandr",
+    opts = {
+        jump_forward = "<Tab>",
+        jump_backward = "<S-Tab>",
+        completion = "<C-Space>",
+        range = "" -- see :h Range
+        flags = "gc" --see :h :s_flags
+    },
+    keys = {
+        {
+            "<C-h>",
+            mode = { "n" },
+            function()
+                require("sandr").search_and_replace({})
+            end,
+            desc = "Search and replace",
+        },
+        {
+            "<C-h>",
+            mode = { "v" },
+            function()
+                require("sandr").search_and_replace({ visual = true })
+            end,
+            desc = "Search and replace visual",
+        },
+    },
+}
 ```
