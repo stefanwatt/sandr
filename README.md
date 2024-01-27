@@ -27,7 +27,7 @@ At the moment I consider this project mostly a learning experience for me.
 
 ## Search and replace in neovim
 
-seems to be something that keeps coming up as a pain point every now and then. I do like the builtin substitute command (something like :s/foo/bar/gc ), but there's some things that just work better for me ootb with the implementation in VSCode or IntelliJ.
+seems to be something that keeps coming up as a pain point every now and then. I do like the builtin substitute command, but there's some things that just work better for me ootb with the implementation in VSCode or IntelliJ.
 
 ## Why?
 
@@ -36,7 +36,7 @@ seems to be something that keeps coming up as a pain point every now and then. I
     <li id="problem_loop">
         The builtin substitute command offers no way to loop-around.
         If you want to replace in the entire buffer your only option is
-        to use `%s/foo/bar/gc`, but this will always jump you to the beginning of the buffer, which is kinda jarring.
+        to use <code>%s/foo/bar/gc</code>, but this will always jump you to the beginning of the buffer, which is kinda jarring.
         If you instead start replacing from the current line, then obviously you will miss all the matches that are before your cursor.
     </li>
     <li id="problem_column">The builtin substitute command does not offer a way to specify the column to start from</li>
