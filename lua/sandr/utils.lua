@@ -23,17 +23,6 @@ function M.buf_vtext()
     return tostring(text)
 end
 
----@generic T
----@param list `T`[]
----@param cb function(value: `T`): `T`
-function M.map(list, cb)
-    local result = {}
-    for _, value in ipairs(list) do
-        table.insert(result, cb(value))
-    end
-    return result
-end
-
 function M.flat_map(list, cb, ...)
     local result = {}
     local index = 1
@@ -58,70 +47,6 @@ function M.find(list, cb)
         end
     end
     return nil
-end
-
---- @param args table: The unstructured argument list.
---- @return string: text
---- @return number: cursor_pos
---- @return string: prefix
-function M.parse_ext_cmdline_args(args)
-    local text = args[1][1][2]
-    local cursor_pos = args[2]
-    local prefix = args[3]
-    return text, cursor_pos, prefix
-end
-
-function M.substitute_loop_around(pattern, replacement)
-    local flags = Config.flags
-    local current_line = vim.fn.line(".")
-    local last_line = vim.fn.line("$")
-    vim.api.nvim_input("<CR>")
-    -- Substitute from current line to the end of the file
-    vim.cmd(
-        current_line
-            .. ","
-            .. last_line
-            .. "s/"
-            .. pattern
-            .. "/"
-            .. replacement
-            .. "/"
-            .. flags
-    )
-
-    -- If the current line is not the first line, run the substitute from the start to the current line
-    if current_line > 1 then
-        vim.cmd(
-            "1,"
-                .. (current_line - 1)
-                .. "s/"
-                .. pattern
-                .. "/"
-                .. replacement
-                .. "/"
-                .. flags
-        )
-    end
-end
-
----@param search_term string
----@param replace_term string
----@param visual boolean
----@param config SandrConfig
-function M.set_cmd_line(search_term, replace_term, visual, config)
-    local cmdline = config.range
-        .. "s/"
-        .. search_term
-        .. "/"
-        .. replace_term
-        .. "/"
-        .. config.flags
-    local _, second_slash_pos, third_slash_pos = M.get_slash_positions(cmdline)
-    local cursor_pos = (visual and third_slash_pos or second_slash_pos)
-    vim.api.nvim_input("<Esc>:")
-    vim.schedule(function()
-        vim.fn.setcmdline(cmdline, cursor_pos)
-    end)
 end
 
 ---@param line number

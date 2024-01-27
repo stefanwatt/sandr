@@ -1,3 +1,4 @@
+local Input = require("nui.input")
 local highlight = require("sandr.highlight")
 local utils = require("sandr.utils")
 local matches = require("sandr.matches")
@@ -11,7 +12,7 @@ SearchInputBufnr = 0
 ReplaceInputBufnr = 0
 
 ---@alias SandrEvent "hide"|"search_input_change"|"search_input_submit"|"replace_input_change"|"replace_input_submit"
----
+---TODO make available through config
 ---@class SandrHookCB
 ---@field name string
 ---@field cb fun(...)
@@ -55,7 +56,7 @@ end
 
 local function init_search_input()
     local popup_opts, input_opts = get_search_input_options()
-    search_input.nui_input = require("nui.input")(popup_opts, input_opts)
+    search_input.nui_input = Input(popup_opts, input_opts)
 end
 
 ---@type SandrInput
@@ -84,7 +85,7 @@ end
 
 local function init_replace_input()
     local popup_opts, input_opts = get_replace_input_options()
-    replace_input.nui_input = require("nui.input")(popup_opts, input_opts)
+    replace_input.nui_input = Input(popup_opts, input_opts)
 end
 
 local focus_search_input = function()

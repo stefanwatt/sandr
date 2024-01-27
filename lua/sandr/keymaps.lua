@@ -119,14 +119,6 @@ function M.setup(search_input_bufnr, replace_input_bufnr)
         "search_input_change",
         { cb = actions.search_input_change, name = "search_input_change" }
     )
-    -- dialog_manager.on(
-    --     "replace_input_change",
-    --     { cb, name = "replace_input_change" }
-    -- )
-    -- dialog_manager.on(
-    --     "search_input_submit",
-    --     { cb, name = "search_input_submit" }
-    -- )
     dialog_manager.on("replace_input_submit", {
         cb = function(search_term, replace_term)
             dialog_manager.hide_dialog()
