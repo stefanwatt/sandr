@@ -6,6 +6,34 @@ local M = {}
 local default_modes = { "n", "i", "x" }
 local default_opts = { noremap = true, silent = true }
 
+---@param search_input_bufnr number
+---@param replace_input_bufnr number
+local function setup_buffer_local_keymaps(
+    search_input_bufnr,
+    replace_input_bufnr
+)
+    local buffers = { search_input_bufnr, replace_input_bufnr }
+    for _, bufnr in ipairs(buffers) do
+        vim.keymap.set(
+            { "n", "i", "x" },
+            Config.toggle,
+            dialog_manager.hide_dialog,
+            { noremap = true, silent = true, buffer = bufnr }
+        )
+        vim.keymap.set(
+            { "n", "i" },
+            "<Up>",
+            actions.prev_search_result,
+            { noremap = true, silent = true, buffer = bufnr }
+        )
+        vim.keymap.set(
+            { "n", "i" },
+            "<Down>",
+            actions.next_search_result,
+            { noremap = true, silent = true, buffer = bufnr }
+        )
+    end
+end
 ---@return SandrKeymap[]
 local function get_keymaps()
     return {
@@ -68,7 +96,9 @@ function M.teardown()
     restore_original_keymaps()
 end
 
-function M.setup()
+---@param search_input_bufnr number
+---@param replace_input_bufnr number
+function M.setup(search_input_bufnr, replace_input_bufnr)
     local keymaps = get_keymaps()
     for _, keymap in pairs(keymaps) do
         local modes = keymap.modes or default_modes
@@ -80,7 +110,27 @@ function M.setup()
             keymap.opts or default_opts
         )
     end
-    table.insert(dialog_manager.hooks.on_hide, M.teardown)
+    dialog_manager.on("hide", { cb = M.teardown, name = "teardown" })
+    dialog_manager.on(
+        "search_input_change",
+        { cb = actions.search_input_change, name = "search_input_change" }
+    )
+    -- dialog_manager.on(
+    --     "replace_input_change",
+    --     { cb, name = "replace_input_change" }
+    -- )
+    -- dialog_manager.on(
+    --     "search_input_submit",
+    --     { cb, name = "search_input_submit" }
+    -- )
+    dialog_manager.on("replace_input_submit", {
+        cb = function(search_term, replace_term)
+            actions.replace_input_submit(search_term, replace_term)
+            dialog_manager.hide_dialog()
+        end,
+        name = "replace_input_submit",
+    })
+    setup_buffer_local_keymaps(search_input_bufnr, replace_input_bufnr)
 end
 
 return M

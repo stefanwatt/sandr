@@ -13,7 +13,10 @@ local default_config = {
     range = "%",
     flags = "gc",
 }
+---@type SandrConfig
 Config = default_config
+---@type number
+SourceWinId = 0
 
 local M = {}
 
@@ -26,14 +29,19 @@ end
 
 ---@param args SandrArgs
 function M.search_and_replace(args)
-    keymaps.setup()
     local selection = args.visual and utils.buf_vtext() or ""
-    local current_win = vim.api.nvim_get_current_win()
-    dialog_manager.show_dialog(current_win, selection)
-    table.insert(dialog_manager.hooks.on_hide, function()
-        vim.schedule(function()
-            vim.api.nvim_set_current_win(current_win)
-        end)
+    SourceWinId = vim.api.nvim_get_current_win()
+    local search_bufnr, replace_bufnr = dialog_manager.show_dialog(selection)
+    dialog_manager.on("hide", {
+        cb = function()
+            vim.schedule(function()
+                vim.api.nvim_set_current_win(SourceWinId)
+            end)
+        end,
+        name = "reset_cursor",
+    })
+    vim.schedule(function()
+        keymaps.setup(search_bufnr, replace_bufnr)
     end)
 end
 

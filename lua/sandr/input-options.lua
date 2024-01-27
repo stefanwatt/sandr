@@ -49,28 +49,26 @@ local function get_input_options(prompt, on_submit, on_change)
     }
 end
 
----@param source_win_id number
 ---@param on_submit function(value: string)
 ---@param on_change function(value: string)
 ---@return nui_popup_options, nui_input_options
-function M.get_search_input_options(source_win_id, on_submit, on_change)
+function M.get_search_input_options(on_submit, on_change)
     return get_popup_options(
         SEARCH_DIALOG_TITLE,
         SEARCH_DIALOG_ROW,
-        source_win_id
+        SourceWinId
     ),
         get_input_options("Search", on_submit, on_change)
 end
 
----@param source_win_id number
 ---@param on_submit function(value: string)
 ---@param on_change function(value: string)
 ---@return nui_popup_options, nui_input_options
-function M.get_replace_input_options(source_win_id, on_submit, on_change)
+function M.get_replace_input_options(on_submit, on_change)
     return get_popup_options(
         REPLACE_DIALOG_TITLE,
         REPLACE_DIALOG_ROW,
-        source_win_id
+        SourceWinId
     ),
         get_input_options("Replace", on_submit, on_change)
 end

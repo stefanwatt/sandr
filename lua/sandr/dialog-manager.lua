@@ -7,12 +7,26 @@ local input_options = require("sandr.input-options")
 
 local M = {}
 local visible = false
+SearchInputBufnr = 0
+ReplaceInputBufnr = 0
 
----@class SandrHooks
----@field on_hide fun()[]
-M.hooks = {
-    on_hide = {},
+---@alias SandrEvent "hide"|"search_input_change"|"search_input_submit"|"replace_input_change"|"replace_input_submit"
+---
+---@class SandrHookCB
+---@field name string
+---@field cb fun(...)
+---
+---@type table<SandrEvent, SandrHookCB[]>
+local default_hooks = {
+    hide = {},
+    search_input_change = {},
+    search_input_submit = {},
+    replace_input_change = {},
+    replace_input_submit = {},
 }
+
+local hooks = default_hooks
+
 ---@type SandrInput
 local search_input = {
     mounted = false,
@@ -20,8 +34,7 @@ local search_input = {
     focused = true,
 }
 
----@param source_win_id number
-local function get_search_input_options(source_win_id)
+local function get_search_input_options()
     ---@param value string
     local function on_submit(value)
         --TODO
@@ -30,32 +43,19 @@ local function get_search_input_options(source_win_id)
     ---@param value string
     local function on_change(value)
         search_input.value = value
-        local bufnr = vim.api.nvim_win_get_buf(source_win_id)
-        local new_matches = matches.get_matches(bufnr, value)
-
-        local current_match =
-            matches.get_closest_match_after_cursor(new_matches, source_win_id)
-        if not current_match or not new_matches or #new_matches == 0 then
-            highlight.clear_highlights(bufnr)
-            return
+        for _, sandr_hook_cb in ipairs(hooks.search_input_change) do
+            sandr_hook_cb.cb(value)
         end
-        state.set_matches(new_matches)
-        state.set_current_match(current_match)
-        highlight.highlight_matches(new_matches, current_match, bufnr)
     end
 
-    local popup_opts, input_opts = input_options.get_search_input_options(
-        source_win_id,
-        on_submit,
-        on_change
-    )
+    local popup_opts, input_opts =
+        input_options.get_search_input_options(on_submit, on_change)
     return popup_opts, input_opts
 end
----@param source_win_id number
-local function init_search_input(source_win_id)
-    local popup_opts, input_opts = get_search_input_options(source_win_id)
+
+local function init_search_input()
+    local popup_opts, input_opts = get_search_input_options()
     search_input.nui_input = require("nui.input")(popup_opts, input_opts)
-    search_input.source_win_id = source_win_id
 end
 
 ---@type SandrInput
@@ -65,31 +65,29 @@ local replace_input = {
     focused = false,
 }
 
-local function get_replace_input_options(source_win_id)
+local function get_replace_input_options()
     ---@param value string
     local function on_submit(value)
-        vim.api.nvim_set_current_win(source_win_id)
-        local current_match = state.get_current_match()
-        actions.confirm(search_input.value, value, current_match)
-        M.hide_dialog()
+        print("replace_input_submit")
+        print("hooks=" .. vim.inspect(hooks))
+        for _, sandr_hook_cb in ipairs(hooks.replace_input_submit) do
+            print("running cb: " .. sandr_hook_cb.name)
+            sandr_hook_cb.cb(search_input.value, value)
+        end
     end
 
     ---@param value string
     local function on_change(value)
         replace_input.value = value
     end
-    local popup_opts, input_opts = input_options.get_replace_input_options(
-        source_win_id,
-        on_submit,
-        on_change
-    )
+    local popup_opts, input_opts =
+        input_options.get_replace_input_options(on_submit, on_change)
     return popup_opts, input_opts
 end
----@param source_win_id number
-local function init_replace_input(source_win_id)
-    local popup_opts, input_opts = get_replace_input_options(source_win_id)
+
+local function init_replace_input()
+    local popup_opts, input_opts = get_replace_input_options()
     replace_input.nui_input = require("nui.input")(popup_opts, input_opts)
-    replace_input.source_win_id = source_win_id
 end
 
 local focus_search_input = function()
@@ -117,81 +115,44 @@ end
 local function hide_dialog()
     hide_input(search_input)
     hide_input(replace_input)
-    for _, cb in ipairs(M.hooks.on_hide) do
-        cb()
+    for _, sandr_hook_cb in ipairs(hooks.hide) do
+        sandr_hook_cb.cb()
     end
-    M.hooks.on_hide = {}
-    local bufnr = vim.api.nvim_win_get_buf(search_input.source_win_id)
+    M.hooks = default_hooks
+    local bufnr = vim.api.nvim_win_get_buf(SourceWinId)
     highlight.clear_highlights(bufnr)
     visible = false
-    vim.api.nvim_set_current_win(search_input.source_win_id)
+    vim.api.nvim_set_current_win(SourceWinId)
 end
 
----@param input SandrInput
-local function set_buffer_keymaps(input)
-    --TODO maybe this can go to keymaps.lua
-    local lhs = Config.toggle
-    vim.keymap.set(
-        { "n", "i", "x" },
-        lhs,
-        hide_dialog,
-        { noremap = true, silent = true, buffer = input.nui_input.bufnr }
-    )
-    vim.keymap.set({ "n", "i" }, "<Up>", function()
-        local current_match = state.get_current_match()
-        local current_matches = state.get_matches()
-        local prev_match =
-            matches.get_prev_match(current_match, current_matches)
-        if not prev_match then
-            return
-        end
-        state.set_current_match(prev_match)
-        local bufnr = vim.api.nvim_win_get_buf(input.source_win_id)
-        highlight.highlight_matches(current_matches, prev_match, bufnr)
-        local prev_match_line = prev_match.start.row
-        local current_win = vim.api.nvim_get_current_win()
-        vim.api.nvim_set_current_win(search_input.source_win_id)
-        if not utils.is_range_in_viewport(prev_match_line) then
-            utils.center_line(prev_match_line)
-        end
-        vim.api.nvim_set_current_win(current_win)
-    end, { noremap = true, silent = true, buffer = input.nui_input.bufnr })
-    vim.keymap.set({ "n", "i" }, "<Down>", function()
-        local current_match = state.get_current_match()
-        local current_matches = state.get_matches()
-        local next_match =
-            matches.get_next_match(current_match, current_matches)
-        if not next_match then
-            return
-        end
-        state.set_current_match(next_match)
-        local bufnr = vim.api.nvim_win_get_buf(input.source_win_id)
-        highlight.highlight_matches(current_matches, next_match, bufnr)
-        local next_match_line = next_match.start.row
-        local current_win = vim.api.nvim_get_current_win()
-        vim.api.nvim_set_current_win(search_input.source_win_id)
-        if not utils.is_range_in_viewport(next_match_line) then
-            utils.center_line(next_match_line)
-        end
-        vim.api.nvim_set_current_win(current_win)
-    end, { noremap = true, silent = true, buffer = input.nui_input.bufnr })
-end
-
----@param popup_opts nui_layout_options
----@param input_opts nui_input_options
----@param input SandrInput
-local function show_input(input, popup_opts, input_opts)
+local function show_search_input()
     if visible then
         return
     end
-    if not input.mounted then
-        input.nui_input:mount()
-        set_buffer_keymaps(input)
-        input.mounted = true
+    if not search_input.mounted then
+        search_input.nui_input:mount()
+        SearchInputBufnr = search_input.nui_input.bufnr
+        search_input.mounted = true
         return
     end
-    input.nui_input.update_layout(input.nui_input, popup_opts)
-    input.nui_input:show()
+    local popup_opts, input_opts = get_search_input_options()
+    search_input.nui_input.update_layout(search_input.nui_input, popup_opts)
+    search_input.nui_input:show()
+end
+
+local function show_replace_input()
+    if visible then
+        return
+    end
+    if not replace_input.mounted then
+        replace_input.nui_input:mount()
+        ReplaceInputBufnr = replace_input.nui_input.bufnr
+        replace_input.mounted = true
+        return
+    end
+    local popup_opts, input_opts = get_replace_input_options()
+    replace_input.nui_input.update_layout(replace_input.nui_input, popup_opts)
+    replace_input.nui_input:show()
 end
 
 ------------------------------------------------------------------------------------------
@@ -206,24 +167,35 @@ function M.jump()
     end
 end
 
+---@param event SandrEvent
+---@param hook_cb SandrHookCB
+function M.on(event, hook_cb)
+    local existing_cb = utils.find(hooks[event], function(sandr_hook_cb)
+        return sandr_hook_cb.name == hook_cb.name
+    end)
+    if not existing_cb then
+        table.insert(hooks[event], hook_cb)
+    end
+end
+
 M.hide_dialog = hide_dialog
 
----@param source_win_id number
 ---@param search_term string
-function M.show_dialog(source_win_id, search_term)
+---@return number search_input_bufnr
+---@return number replace_input_bufnr
+function M.show_dialog(search_term)
     --TODO apply highlighting when search_term is provided
     --TODO set search term
     if not replace_input.nui_input then
-        init_replace_input(source_win_id)
+        init_replace_input()
     end
     if not search_input.nui_input then
-        init_search_input(source_win_id)
+        init_search_input()
     end
-    local popup_opts, input_opts = get_replace_input_options(source_win_id)
-    show_input(replace_input, popup_opts, input_opts)
-    popup_opts, input_opts = get_search_input_options(source_win_id)
-    show_input(search_input, popup_opts, input_opts)
+    show_replace_input()
+    show_search_input()
     visible = true
+    return search_input.nui_input.bufnr, replace_input.nui_input.bufnr
 end
 
 ---@return string search_term
@@ -237,7 +209,7 @@ function M.get_replace_term()
 end
 
 function M.replace_all()
-    vim.api.nvim_set_current_win(search_input.source_win_id)
+    vim.api.nvim_set_current_win(SourceWinId)
     actions.replace_all(search_input.value, replace_input.value)
 end
 

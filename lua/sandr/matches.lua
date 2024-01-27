@@ -7,7 +7,15 @@ local M = {}
 ---@return SandrRange[]
 local function get_matches_of_line(line, row, search_term)
     local matches = {}
-    local start, finish = string.find(line, search_term)
+    local ignore_case = string.find(Config.flags or "", "i") ~= nil
+    local line_to_search = line
+    local term_to_search = search_term
+    if ignore_case then
+        line_to_search = string.lower(line)
+        term_to_search = string.lower(search_term)
+    end
+
+    local start, finish = string.find(line_to_search, term_to_search)
     while start and finish do
         ---@type SandrRange
         local match = {
@@ -21,7 +29,7 @@ local function get_matches_of_line(line, row, search_term)
             },
         }
         table.insert(matches, match)
-        start, finish = string.find(line, search_term, finish + 1)
+        start, finish = string.find(line_to_search, term_to_search, finish + 1)
     end
     return matches
 end
@@ -40,10 +48,10 @@ function M.get_matches(bufnr, search_term)
 end
 
 ---@param matches SandrRange[]
----@param win_id number
 ---@return SandrRange?
-function M.get_closest_match_after_cursor(matches, win_id)
-    local cursor_row, cursor_col = unpack(vim.api.nvim_win_get_cursor(win_id))
+function M.get_closest_match_after_cursor(matches)
+    local cursor_row, cursor_col =
+        unpack(vim.api.nvim_win_get_cursor(SourceWinId))
     for _, match in ipairs(matches) do
         local on_line_after = match.start.row > cursor_row
         local on_same_line = match.start.row == cursor_row
@@ -72,7 +80,7 @@ end
 ---@param matches SandrRange[]
 function M.get_next_match(current_match, matches)
     if current_match == nil then
-        print("must provide value for current_match")
+        error("must provide value for current_match")
         return
     end
 
@@ -80,7 +88,7 @@ function M.get_next_match(current_match, matches)
         return M.equals(match, current_match)
     end)
     if current_index == nil then
-        print("couldn't locate match in list of matches")
+        error("couldn't locate match in list of matches")
         return
     end
     return current_index + 1 > #matches and matches[1]
@@ -91,14 +99,14 @@ end
 ---@param matches SandrRange[]
 function M.get_prev_match(current_match, matches)
     if current_match == nil then
-        print("must provide value for current_match")
+        error("must provide value for current_match")
         return
     end
     local current_index = utils.index_of(matches, function(match)
         return M.equals(match, current_match)
     end)
     if current_index == nil then
-        print("couldn't locate match in list of matches")
+        error("couldn't locate match in list of matches")
         return
     end
     return current_index - 1 < 1 and matches[#matches]
