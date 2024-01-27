@@ -25,9 +25,11 @@
 This is not ready for the public yet. Expect bugs.
 At the moment I consider this project mostly a learning experience for me.
 
+<!-- TOC --><a name="search-and-replace-in-neovim"></a>
 ## Search and replace in neovim
 
 seems to be something that keeps coming up as a pain point every now and then. I do like the builtin substitute command, but there's some things that just work better for me ootb with the implementation in VSCode or IntelliJ.
+
 <!-- TOC --><a name="why"></a>
 ## Why?
 
@@ -45,6 +47,7 @@ seems to be something that keeps coming up as a pain point every now and then. I
     <li id="problem_jump">I want to be able to jump between search and replace term easily with a keymap</li>
     <li id="problem_gui">I prefer a graphical dialog in the top right corner of my buffer where it's least likely to block text</li>
 </ol>
+
 <!-- TOC --><a name="how-does-this-plugin-work"></a>
 ## How does this plugin work?
 
@@ -72,6 +75,7 @@ All these keymaps are just the default and can be configured of course.
 Here's a quick demo:
 
 <img style="width:100%;" src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExcWQ0N3huZjdiYWI0YXk3ZTBiZzNsc3VxbGRrYXVmZ29mbG55Z3BmdiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/ai2QN6xTM5nOb6UWQS/giphy.gif">
+
 <!-- TOC --><a name="installation"></a>
 ## Installation
 
