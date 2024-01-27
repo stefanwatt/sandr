@@ -8,18 +8,18 @@
 [![Neovim](https://img.shields.io/badge/Neovim%200.5+-green.svg?style=for-the-badge&logo=neovim)](https://neovim.io)
 
 </div>
-<!--toc:start-->
+<!-- TOC start (generated with https://github.com/derlin/bitdowntoc) -->
 
--   [Disclaimer](#wip)
--   [Search and replace in neovim](#search-and-replace-in-neovim)
--   [What I don't like/what I'm missing](#what-i-dont-likewhat-im-missing)
--   [How I tried to solve these things](#how-i-tried-to-solve-these-things)
--   [Installation](#installation)
--   [Example Usage:](#example-usage)
--   [The Challenges:](#the-challenges)
+- [Disclaimer](#alpha)
+- [Search and replace in neovim](#search-and-replace-in-neovim)
+- [Why?](#why)
+- [How does this plugin work?](#how-does-this-plugin-work)
+- [Installation](#installation)
 
-<!--toc:end-->
+<!-- TOC end -->
 
+
+<!-- TOC --><a name="alpha"></a>
 ## 🚨🚨🚨ALPHA🚨🚨🚨
 
 This is not ready for the public yet. Expect bugs.
@@ -28,7 +28,7 @@ At the moment I consider this project mostly a learning experience for me.
 ## Search and replace in neovim
 
 seems to be something that keeps coming up as a pain point every now and then. I do like the builtin substitute command, but there's some things that just work better for me ootb with the implementation in VSCode or IntelliJ.
-
+<!-- TOC --><a name="why"></a>
 ## Why?
 
 <ol>
@@ -45,7 +45,7 @@ seems to be something that keeps coming up as a pain point every now and then. I
     <li id="problem_jump">I want to be able to jump between search and replace term easily with a keymap</li>
     <li id="problem_gui">I prefer a graphical dialog in the top right corner of my buffer where it's least likely to block text</li>
 </ol>
-
+<!-- TOC --><a name="how-does-this-plugin-work"></a>
 ## How does this plugin work?
 
 Running
@@ -72,7 +72,7 @@ All these keymaps are just the default and can be configured of course.
 Here's a quick demo:
 
 <img style="width:100%;" src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExcWQ0N3huZjdiYWI0YXk3ZTBiZzNsc3VxbGRrYXVmZ29mbG55Z3BmdiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/ai2QN6xTM5nOb6UWQS/giphy.gif">
-
+<!-- TOC --><a name="installation"></a>
 ## Installation
 
 -   install using your favorite plugin manager (`lazy` in this example)
