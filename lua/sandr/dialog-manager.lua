@@ -144,9 +144,7 @@ local function show_search_input()
     local popup_opts, input_opts = get_search_input_options()
     search_input.nui_input.update_layout(search_input.nui_input, popup_opts)
     search_input.nui_input:show()
-    vim.schedule(function()
-        vim.api.nvim_input("<Tab>")
-    end)
+    vim.api.nvim_command("startinsert")
 end
 
 local function show_replace_input()
@@ -162,6 +160,7 @@ local function show_replace_input()
     local popup_opts, input_opts = get_replace_input_options()
     replace_input.nui_input.update_layout(replace_input.nui_input, popup_opts)
     replace_input.nui_input:show()
+    vim.api.nvim_command("startinsert")
 end
 
 ------------------------------------------------------------------------------------------
@@ -207,17 +206,18 @@ function M.show_dialog(search_term)
     show_search_input()
     search_input.focused = true
     visible = true
+    -- HACK sometimes a some buffer from the workspace is opened in the nui input
+    vim.schedule(function()
+        vim.api.nvim_win_set_buf(
+            search_input.nui_input.winid,
+            search_input.nui_input.bufnr
+        )
+        vim.api.nvim_win_set_buf(
+            replace_input.nui_input.winid,
+            replace_input.nui_input.bufnr
+        )
+    end)
     return search_input.nui_input.bufnr, replace_input.nui_input.bufnr
-end
-
----@return string search_term
-function M.get_search_term()
-    return search_input.value
-end
-
----@return string replace_term
-function M.get_replace_term()
-    return replace_input.value
 end
 
 function M.replace_all()
