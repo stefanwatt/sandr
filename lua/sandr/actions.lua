@@ -61,7 +61,7 @@ end
 
 ---@param pattern string
 ---@param replacement string
----@param starting_match SandrRange
+---@param starting_match Sandr.Range
 ---substitute with loop-around
 function M.confirm(pattern, replacement, starting_match)
     --TODO when you press q or Esc on the prompt of the first substitute command

@@ -3,7 +3,7 @@ local HL_GROUP_DEFAULT = "Search"
 local HL_GROUP_CURRENT_MATCH = "IncSearch"
 local ns = vim.api.nvim_create_namespace("sandr-highlight")
 
----@param match SandrRange
+---@param match Sandr.Range
 ---@param buf_id number
 ---@param hl_group string
 local function apply_highlight(match, buf_id, hl_group)
@@ -28,8 +28,8 @@ function M.clear_highlights(bufnr)
     vim.api.nvim_buf_clear_namespace(bufnr, -1, 0, -1)
 end
 
----@param matches SandrRange[]?
----@param current_match SandrRange?
+---@param matches Sandr.Range[]?
+---@param current_match Sandr.Range?
 ---@param bufnr number
 function M.highlight_matches(matches, current_match, bufnr)
     if not matches then

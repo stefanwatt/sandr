@@ -1,4 +1,4 @@
----@class SandrInput
+---@class Sandr.Input
 ---@field value? string
 ---@field mounted boolean
 ---@field nui_input? NuiInput
@@ -6,49 +6,53 @@
 ---@field prompt string
 ---@field focused boolean
 
----@class SandrKeymap
+---@class Sandr.Keymap
 ---@field lhs string
 ---@field rhs function
 ---@field modes? string[]|string
 ---@field opts? any
 ---
----@class SandrArgs
+---@class Sandr.Args
 ---@field visual boolean
+---
+---@class Sandr.BaseConfig
+---@field toggle string
+---@field toggle_ignore_case string
 
----@class SandrConfigUpdate
+---@class Sandr.ExtendedConfig : Sandr.BaseConfig
+---@field jump string
+---@field range string
+---@field flags string
+
+---@class Sandr.UserConfig
+---@field base Sandr.BaseConfig
+---@field jump string
+
+---@class Sandr.ConfigUpdate
 ---@field toggle? string
 ---@field toggle_ignore_case? string
 ---@field jump? string
 ---@field range? string
 ---@field flags? string
 
----@class SandrUserConfig
----@field toggle string
----@field toggle_ignore_case string
----@field jump string
-
----@class SandrConfig
----@field toggle string
----@field toggle_ignore_case string
----@field jump string
----@field range string
----@field flags string
-
---- @class SandrState
+---@class Sandr.StateConfig
+---@field extended Sandr.ExtendedConfig
+---
+--- @class Sandr.State
 --- @field last_search_term string
 --- @field last_search_terms string[]
 --- @field search_term_completion_index number
 --- @field last_replace_term string
 --- @field last_replace_terms string[]
 --- @field replace_term_completion_index number
---- @field config? SandrConfig
---- @field matches? SandrRange[]
---- @field current_match? SandrRange
+--- @field config? Sandr.ExtendedConfig
+--- @field matches? Sandr.Range[]
+--- @field current_match? Sandr.Range
 ---
----@class SandrPosition
+---@class Sandr.Position
 ---@field row number
 ---@field col number
----
----@class SandrRange
----@field start SandrPosition
----@field finish SandrPosition
+
+---@class Sandr.Range
+---@field start Sandr.Position
+---@field finish Sandr.Position

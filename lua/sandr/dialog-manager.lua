@@ -28,7 +28,7 @@ local default_hooks = {
 
 local hooks = default_hooks
 
----@type SandrInput
+---@type Sandr.Input
 local search_input = {
     mounted = false,
     prompt = "Search: ",
@@ -59,7 +59,7 @@ local function init_search_input()
     search_input.nui_input = Input(popup_opts, input_opts)
 end
 
----@type SandrInput
+---@type Sandr.Input
 local replace_input = {
     mounted = false,
     prompt = "Replace: ",
@@ -102,7 +102,7 @@ end
 ------------------------------------------------------------------------------------------
 -----------------------------------GENERAL------------------------------------------------
 ------------------------------------------------------------------------------------------
----@param input SandrInput
+---@param input Sandr.Input
 local function hide_input(input)
     if not input.mounted or not visible then
         return
