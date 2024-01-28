@@ -1,0 +1,2 @@
+- why is the prompt not shown when the dialog is opened,
+but only when the input receive focus?

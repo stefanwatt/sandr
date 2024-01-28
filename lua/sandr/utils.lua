@@ -81,5 +81,10 @@ function M.center_line(line)
     vim.api.nvim_win_set_cursor(0, { line, 0 }) -- Set cursor to the line of the match
     vim.cmd("normal zz") -- Center the window view on the cursor line
 end
+---@param input string
+function M.escape_for_regex(input)
+    local escaped_str = string.gsub(input, "([\\.\\*\\[\\^\\$~])", "\\%1")
+    return escaped_str
+end
 
 return M

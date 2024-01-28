@@ -3,6 +3,14 @@ local state = require("sandr.state")
 local matches = require("sandr.matches")
 local highlight = require("sandr.highlight")
 
+function _G.preserve_case_replace(search_term, replace_term)
+    if search_term:find("^%u") then
+        return replace_term:sub(1, 1):upper() .. replace_term:sub(2):lower()
+    else
+        return replace_term:lower()
+    end
+end
+
 ---@param start_row number
 ---@param end_row number
 ---@param start_col number
@@ -17,28 +25,31 @@ local function substitute(
     replacement,
     flags
 )
-    -- Escape the pattern and replacement to avoid issues with special characters
-    local escaped_pattern = vim.pesc(pattern)
-    local escaped_replacement = vim.pesc(replacement)
+    -- Conditionally escape the pattern and replacement based on Config.regex
+    local final_pattern = Config.regex and pattern
+        or utils.escape_for_regex(pattern)
+    local final_replacement = Config.regex and replacement
+        or utils.escape_for_regex(replacement)
 
-    -- Build the modified pattern, which includes the start column logic
-    local modified_pattern
-    if start_col > 0 then
-        -- Match any character up to the start_col, then the actual pattern
-        modified_pattern =
-            string.format(".\\{%d}\\zs%s", start_col - 1, escaped_pattern)
-    else
-        -- If start_col is 0 or less, use the pattern as is
-        modified_pattern = escaped_pattern
-    end
+    -- Modify the pattern for start_col logic
+    local modified_pattern = start_col > 0
+            and string.format(".\\{%d}\\zs%s", start_col - 1, final_pattern)
+        or final_pattern
 
-    -- Build and execute the command
+    -- Determine the actual replacement text based on Config.preserve_case
+    final_replacement = Config.preserve_case
+            and ("\\=v:lua.preserve_case_replace(submatch(0), '" .. final_replacement .. "')")
+        or final_replacement
+
+    print("finalpattern=" .. final_pattern)
+    print("finalreplacement=" .. final_replacement)
+    -- Build and execute the substitute command
     local cmd = string.format(
         "%d,%ds/%s/%s/%s",
         start_row,
         end_row,
         modified_pattern,
-        escaped_replacement,
+        final_replacement,
         flags
     )
     pcall(vim.cmd, cmd)
@@ -52,7 +63,9 @@ end
 
 function M.toggle_ignore_case()
     --TODO update matches and highlights etc
-    state.update_config({ ignore_case = not Config.ignore_case })
+    -- print("config=" .. vim.inspect(Config))
+    -- local updated = Config.ignore_case and false or true
+    -- print("actions: updated=" .. tostring(updated))
 end
 
 ---@param pattern string
@@ -63,7 +76,7 @@ function M.confirm(pattern, replacement, starting_match)
     --TODO when you press q or Esc on the prompt of the first substitute command
     --then it should stop the loop-around
     --but it will execute the second and third still
-    local flags = Config.ignore_case and "gci" or "gc"
+    local flags = Config.ignore_case and "gci" or "gcI"
     local current_line = starting_match.start.row
     local last_line = vim.fn.line("$")
     if not current_line or not last_line then

@@ -141,9 +141,8 @@ local function show_search_input()
         search_input.mounted = true
         return
     end
-    local popup_opts, input_opts = get_search_input_options()
-    search_input.nui_input.update_layout(search_input.nui_input, popup_opts)
     search_input.nui_input:show()
+    M.update_search_input_layout()
     vim.api.nvim_command("startinsert")
 end
 
@@ -223,6 +222,20 @@ end
 function M.replace_all()
     vim.api.nvim_set_current_win(SourceWinId)
     actions.replace_all(search_input.value, replace_input.value)
+end
+
+function M.update_search_input_layout()
+    local popup_opts, input_opts = get_search_input_options()
+    search_input.nui_input.border:set_text(
+        "top",
+        popup_opts.border.text.top,
+        "left"
+    )
+    search_input.nui_input.update_layout(search_input.nui_input, popup_opts)
+end
+
+function M.get_search_term()
+    return search_input.value
 end
 
 return M

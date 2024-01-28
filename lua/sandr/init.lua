@@ -8,15 +8,19 @@ local state = require("sandr.state")
 local default_config = {
     keymaps = {
         toggle = "<C-h>",
-        toggle_ignore_case = "<C-i>",
+        toggle_ignore_case = "<A-i>",
+        toggle_preserve_case = "<A-p>",
+        toggle_regex = "<A-r>",
         jump = "<Tab>",
         next_match = "<C-n>",
         prev_match = "<C-p>",
         history_cycle_up = "<Up>",
         history_cycle_down = "<Down>",
     },
-    ignore_case = true,
+    ignore_case = false,
+    regex = false,
     replacement_preview = true,
+    preserve_case = false,
 }
 ---@type Sandr.Config
 Config = default_config

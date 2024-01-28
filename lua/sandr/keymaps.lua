@@ -1,4 +1,5 @@
 local dialog_manager = require("sandr.dialog-manager")
+local matches = require("sandr.matches")
 local actions = require("sandr.actions")
 local state = require("sandr.state")
 
@@ -18,6 +19,7 @@ local function setup_buffer_local_keymaps(
     end, { noremap = true, silent = true, buffer = search_input_bufnr })
     for _, bufnr in ipairs(buffers) do
         vim.keymap.set(
+            --TODO needs to be availble also when not in the buffre
             { "n", "i", "x" },
             Config.keymaps.toggle,
             dialog_manager.hide_dialog,
@@ -37,13 +39,40 @@ local function setup_buffer_local_keymaps(
         )
     end
 end
+
+local function update_search_input_layout()
+    local search_term = dialog_manager.get_search_term()
+    actions.search_input_change(search_term)
+    dialog_manager.update_search_input_layout()
+end
+
+--TODO all should be buffer local tbh
 ---@return Sandr.Keymap[]
 local function get_keymaps()
     return {
         {
             lhs = Config.keymaps.toggle_ignore_case,
-            rhs = actions.toggle_ignore_case,
+            rhs = function()
+                Config.ignore_case = not Config.ignore_case
+                update_search_input_layout()
+            end,
         },
+        {
+
+            lhs = Config.keymaps.toggle_preserve_case,
+            rhs = function()
+                Config.preserve_case = not Config.preserve_case
+                update_search_input_layout()
+            end,
+        },
+        {
+            lhs = Config.keymaps.toggle_regex,
+            rhs = function()
+                Config.regex = not Config.regex
+                update_search_input_layout()
+            end,
+        },
+
         {
             lhs = "<S-CR>",
             rhs = function()
@@ -54,10 +83,7 @@ local function get_keymaps()
         },
         {
             lhs = Config.keymaps.jump,
-            rhs = function()
-                print("jump")
-                dialog_manager.jump()
-            end,
+            rhs = dialog_manager.jump,
         },
     }
 end

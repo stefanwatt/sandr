@@ -18,6 +18,8 @@
 ---@class Sandr.ConfigKeymaps
 ---@field toggle string
 ---@field toggle_ignore_case string
+---@field toggle_preserve_case string
+---@field toggle_regex string
 ---@field jump string
 ---@field next_match string
 ---@field prev_match string
@@ -27,12 +29,16 @@
 ---@class Sandr.Config
 ---@field keymaps Sandr.ConfigKeymaps
 ---@field ignore_case boolean
+---@field regex boolean
 ---@field replacement_preview boolean
+---@field preserve_case boolean
 
 ---@class Sandr.ConfigUpdate
 ---@field keymaps? Sandr.ConfigKeymaps
 ---@field ignore_case? boolean
+---@field regex? boolean
 ---@field replacement_preview? boolean
+---@field preserve_case? boolean
 
 --- @class Sandr.State
 --- @field last_search_term string
