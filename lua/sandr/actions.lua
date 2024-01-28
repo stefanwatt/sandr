@@ -118,35 +118,6 @@ function M.search_input_change(value)
     highlight.highlight_matches(new_matches, current_match, bufnr)
 end
 
-local function set_ext_marks_for_lines(
-    bufnr,
-    matches_by_line,
-    replacement_preview_ns,
-    replace_term,
-    search_term
-)
-    for line, matches_of_line in pairs(matches_by_line) do
-        table.sort(matches_of_line, function(a, b)
-            return a.start.col < b.start.col
-        end)
-
-        local line_text =
-            vim.api.nvim_buf_get_lines(bufnr, line - 1, line, false)[1]
-        local modified_line = line_text:gsub(search_term, replace_term)
-
-        vim.api.nvim_buf_set_extmark(
-            bufnr,
-            replacement_preview_ns,
-            line - 1,
-            0,
-            {
-                virt_text = { { modified_line, "None" } },
-                virt_text_pos = "overlay",
-                hl_mode = "replace",
-            }
-        )
-    end
-end
 local replacement_preview_ns =
     vim.api.nvim_create_namespace("SandrReplacementPreview")
 ---@param search_term string
@@ -157,25 +128,6 @@ function M.replace_input_change(search_term, replace_term)
 
     vim.api.nvim_buf_clear_namespace(bufnr, replacement_preview_ns, 0, -1)
 
-    if #replace_term < #search_term then
-        local matches_by_line = {}
-        for _, match in ipairs(current_matches) do
-            if not matches_by_line[match.start.row] then
-                matches_by_line[match.start.row] = {}
-            end
-            table.insert(matches_by_line[match.start.row], match)
-        end
-
-        set_ext_marks_for_lines(
-            bufnr,
-            matches_by_line,
-            replacement_preview_ns,
-            replace_term,
-            search_term
-        )
-
-        return
-    end
     for _, match in ipairs(current_matches) do
         local ext_mark_id = tonumber(
             match.start.col
@@ -193,27 +145,12 @@ function M.replace_input_change(search_term, replace_term)
                 end_row = match.finish.row - 1,
                 end_col = match.finish.col,
                 virt_text = { { replace_term, "CurSearch" } },
-                virt_text_pos = "overlay",
+                virt_text_pos = "inline",
                 hl_mode = "replace",
                 strict = false,
+                conceal = "3",
             }
         )
-        if #replace_term > #search_term then
-            local shift_amount = #replace_term - #search_term
-            local inline_spaces = string.rep(" ", shift_amount)
-            vim.api.nvim_buf_set_extmark(
-                bufnr,
-                replacement_preview_ns,
-                match.finish.row - 1,
-                match.finish.col,
-                {
-                    virt_text = { { inline_spaces, "NonText" } }, -- NonText or a similar group to make it less noticeable
-                    virt_text_pos = "inline",
-                    hl_mode = "replace",
-                    strict = false,
-                }
-            )
-        end
     end
 end
 
