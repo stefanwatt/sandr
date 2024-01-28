@@ -4,20 +4,19 @@ local M = {}
 ---@param line string
 ---@param row number
 ---@param search_term string
----@return SandrRange[]
+---@return Sandr.Range[]
 local function get_matches_of_line(line, row, search_term)
     local matches = {}
-    local ignore_case = string.find(Config.flags or "", "i") ~= nil
     local line_to_search = line
     local term_to_search = search_term
-    if ignore_case then
+    if Config.ignore_case then
         line_to_search = string.lower(line)
         term_to_search = string.lower(search_term)
     end
 
     local start, finish = string.find(line_to_search, term_to_search)
     while start and finish do
-        ---@type SandrRange
+        ---@type Sandr.Range
         local match = {
             start = {
                 col = start - 1,
@@ -36,7 +35,7 @@ end
 
 ---@param bufnr number
 ---@param search_term string
----@return SandrRange[]
+---@return Sandr.Range[]
 function M.get_matches(bufnr, search_term)
     if not search_term or search_term == "" then
         return {}
@@ -46,8 +45,8 @@ function M.get_matches(bufnr, search_term)
     return utils.flat_map(lines, get_matches_of_line, search_term)
 end
 
----@param matches SandrRange[]
----@return SandrRange?
+---@param matches Sandr.Range[]
+---@return Sandr.Range?
 function M.get_closest_match_after_cursor(matches)
     local cursor_row, cursor_col =
         unpack(vim.api.nvim_win_get_cursor(SourceWinId))
@@ -66,8 +65,8 @@ function M.get_closest_match_after_cursor(matches)
     end
 end
 
---- @param match1 SandrRange
---- @param match2 SandrRange
+--- @param match1 Sandr.Range
+--- @param match2 Sandr.Range
 function M.equals(match1, match2)
     return match1.start.col == match2.start.col
         and match1.start.row == match2.start.row
@@ -75,8 +74,8 @@ function M.equals(match1, match2)
         and match1.finish.row == match2.finish.row
 end
 
----@param current_match SandrRange
----@param matches SandrRange[]
+---@param current_match Sandr.Range
+---@param matches Sandr.Range[]
 function M.get_next_match(current_match, matches)
     if current_match == nil then
         error("must provide value for current_match")
@@ -94,8 +93,8 @@ function M.get_next_match(current_match, matches)
         or matches[current_index + 1]
 end
 
----@param current_match SandrRange
----@param matches SandrRange[]
+---@param current_match Sandr.Range
+---@param matches Sandr.Range[]
 function M.get_prev_match(current_match, matches)
     if current_match == nil then
         error("must provide value for current_match")
@@ -112,7 +111,7 @@ function M.get_prev_match(current_match, matches)
         or matches[current_index - 1]
 end
 
----@param match SandrRange
+---@param match Sandr.Range
 function M.centerViewportOnMatch(match)
     local top_line = vim.fn.line("w0") -- Get the top line of the current window
     local bot_line = vim.fn.line("w$") -- Get the bottom line of the current window

@@ -14,30 +14,24 @@
 ---
 ---@class Sandr.Args
 ---@field visual boolean
----
----@class Sandr.BaseConfig
+
+---@class Sandr.ConfigKeymaps
 ---@field toggle string
 ---@field toggle_ignore_case string
-
----@class Sandr.ExtendedConfig : Sandr.BaseConfig
 ---@field jump string
----@field range string
----@field flags string
-
----@class Sandr.UserConfig
----@field base Sandr.BaseConfig
----@field jump string
+---@field next_match string
+---@field prev_match string
+---@field history_cycle_up string
+---@field history_cycle_down string
+---
+---@class Sandr.Config
+---@field keymaps Sandr.ConfigKeymaps
+---@field ignore_case boolean
 
 ---@class Sandr.ConfigUpdate
----@field toggle? string
----@field toggle_ignore_case? string
----@field jump? string
----@field range? string
----@field flags? string
+---@field keymaps? Sandr.ConfigKeymaps
+---@field ignore_case? boolean
 
----@class Sandr.StateConfig
----@field extended Sandr.ExtendedConfig
----
 --- @class Sandr.State
 --- @field last_search_term string
 --- @field last_search_terms string[]
@@ -45,7 +39,7 @@
 --- @field last_replace_term string
 --- @field last_replace_terms string[]
 --- @field replace_term_completion_index number
---- @field config? Sandr.ExtendedConfig
+--- @field config? Config
 --- @field matches? Sandr.Range[]
 --- @field current_match? Sandr.Range
 ---

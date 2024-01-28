@@ -1,7 +1,7 @@
 local database = require("sandr.database")
 local utils = require("sandr.utils")
 
----@type SandrState
+---@type Sandr.State
 local state = {
     last_search_term = "",
     last_search_terms = {},
@@ -14,12 +14,12 @@ local state = {
 }
 local M = {}
 
----@param config SandrConfigUpdate
+---@param config Sandr.ConfigUpdate
 function M.update_config(config)
     Congig = vim.tbl_deep_extend("force", Config or {}, config)
 end
 
----@param matches SandrRange[]
+---@param matches Sandr.Range[]
 function M.set_matches(matches)
     state.matches = matches
 end
@@ -28,7 +28,7 @@ function M.get_matches()
     return state.matches
 end
 
----@param match SandrRange
+---@param match Sandr.Range
 function M.set_current_match(match)
     state.current_match = match
 end

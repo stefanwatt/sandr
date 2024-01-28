@@ -52,11 +52,7 @@ end
 
 function M.toggle_ignore_case()
     --TODO update matches and highlights etc
-    if Config.flags == "gci" then
-        state.update_config({ flags = "gc" })
-    else
-        state.update_config({ flags = "gci" })
-    end
+    state.update_config({ ignore_case = not Config.ignore_case })
 end
 
 ---@param pattern string
@@ -67,7 +63,7 @@ function M.confirm(pattern, replacement, starting_match)
     --TODO when you press q or Esc on the prompt of the first substitute command
     --then it should stop the loop-around
     --but it will execute the second and third still
-    local flags = Config.flags
+    local flags = Config.ignore_case and "gci" or "gc"
     local current_line = starting_match.start.row
     local last_line = vim.fn.line("$")
     if not current_line or not last_line then

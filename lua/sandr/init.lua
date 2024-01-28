@@ -4,29 +4,34 @@ local dialog_manager = require("sandr.dialog-manager")
 local utils = require("sandr.utils")
 local state = require("sandr.state")
 
----@type SandrConfig
+---@type Sandr.Config
 local default_config = {
-    toggle = "<C-h>",
-    toggle_ignore_case = "<C-i>",
-    jump = "<Tab>",
-    range = "%",
-    flags = "gc",
+    keymaps = {
+        toggle = "<C-h>",
+        toggle_ignore_case = "<C-i>",
+        jump = "<Tab>",
+        next_match = "<C-n>",
+        prev_match = "<C-p>",
+        history_cycle_up = "<Up>",
+        history_cycle_down = "<Down>",
+    },
+    ignore_case = true,
 }
----@type SandrConfig
+---@type Sandr.Config
 Config = default_config
 ---@type number
 SourceWinId = 0
 
 local M = {}
 
----@param user_config? SandrUserConfig
+---@param user_config? Sandr.ConfigUpdate
 function M.setup(user_config)
     Config = vim.tbl_deep_extend("force", default_config, user_config or {})
         or default_config
     state.read_from_db()
 end
 
----@param args SandrArgs
+---@param args Sandr.Args
 function M.search_and_replace(args)
     local selection = args.visual and utils.buf_vtext() or ""
     SourceWinId = vim.api.nvim_get_current_win()

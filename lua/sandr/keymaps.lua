@@ -19,7 +19,7 @@ local function setup_buffer_local_keymaps(
     for _, bufnr in ipairs(buffers) do
         vim.keymap.set(
             { "n", "i", "x" },
-            Config.toggle,
+            Config.keymaps.toggle,
             dialog_manager.hide_dialog,
             { noremap = true, silent = true, buffer = bufnr }
         )
@@ -37,11 +37,11 @@ local function setup_buffer_local_keymaps(
         )
     end
 end
----@return SandrKeymap[]
+---@return Sandr.Keymap[]
 local function get_keymaps()
     return {
         {
-            lhs = Config.toggle_ignore_case,
+            lhs = Config.keymaps.toggle_ignore_case,
             rhs = actions.toggle_ignore_case,
         },
         {
@@ -53,7 +53,7 @@ local function get_keymaps()
             end,
         },
         {
-            lhs = Config.jump,
+            lhs = Config.keymaps.jump,
             rhs = function()
                 print("jump")
                 dialog_manager.jump()
