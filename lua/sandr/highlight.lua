@@ -62,12 +62,20 @@ function M.draw_replacement_preview(search_term, replace_term)
     vim.api.nvim_buf_clear_namespace(bufnr, replacement_preview_ns, 0, -1)
 
     for _, match in ipairs(current_matches) do
-        local ext_mark_id = tonumber(
-            match.start.col
-                .. match.start.row
-                .. match.finish.col
-                .. match.finish.row
-        )
+        local matched_text = vim.api.nvim_buf_get_text(
+            bufnr,
+            match.start.row - 1,
+            match.start.col,
+            match.finish.row - 1,
+            match.finish.col,
+            {}
+        )[1]
+        local adjusted_replace_term = replace_term
+
+        if Config.preserve_case then
+            adjusted_replace_term =
+                preserve_case_replace(matched_text, replace_term)
+        end
 
         vim.api.nvim_buf_set_extmark(
             bufnr,
@@ -77,7 +85,7 @@ function M.draw_replacement_preview(search_term, replace_term)
             {
                 end_row = match.finish.row - 1,
                 end_col = match.finish.col,
-                virt_text = { { replace_term, "CurSearch" } },
+                virt_text = { { adjusted_replace_term, "CurSearch" } },
                 virt_text_pos = "inline",
                 hl_mode = "replace",
                 strict = false,

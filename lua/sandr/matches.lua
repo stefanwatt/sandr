@@ -7,29 +7,35 @@ local M = {}
 ---@return Sandr.Range[]
 local function get_matches_of_line(line, row, search_term)
     local matches = {}
-    local line_to_search = line
+    local line_to_search = Config.ignore_case and string.lower(line) or line
+
     local term_to_search = search_term
-    if Config.ignore_case then
-        line_to_search = string.lower(line)
-        term_to_search = string.lower(search_term)
+    if Config.regex then
+        term_to_search =
+            term_to_search:gsub("\\([%a])", "%%%1"):gsub("\\%%", "\\")
     end
 
-    local start, finish = string.find(line_to_search, term_to_search)
-    while start and finish do
-        ---@type Sandr.Range
+    term_to_search = Config.ignore_case and string.lower(term_to_search)
+        or term_to_search
+
+    -- print("searching for " .. term_to_search .. " in " .. line_to_search)
+    -- print(line_to_search:find(term_to_search, 1, not Config.regex))
+    local start_pos = 1
+    while true do
+        local start, finish =
+            line_to_search:find(term_to_search, start_pos, not Config.regex)
+        if not start then
+            break
+        end
+
         local match = {
-            start = {
-                col = start - 1,
-                row = row,
-            },
-            finish = {
-                col = finish,
-                row = row,
-            },
+            start = { col = start - 1, row = row },
+            finish = { col = finish, row = row },
         }
         table.insert(matches, match)
-        start, finish = string.find(line_to_search, term_to_search, finish + 1)
+        start_pos = finish + 1
     end
+
     return matches
 end
 
@@ -50,6 +56,9 @@ end
 function M.get_closest_match_after_cursor(matches)
     local cursor_row, cursor_col =
         unpack(vim.api.nvim_win_get_cursor(SourceWinId))
+    local closestMatch = nil -- Store the closest match found after cursor
+
+    -- First, try to find a match after the cursor position
     for _, match in ipairs(matches) do
         local on_line_after = match.start.row > cursor_row
         local on_same_line = match.start.row == cursor_row
@@ -58,11 +67,29 @@ function M.get_closest_match_after_cursor(matches)
             and match.finish.col >= cursor_col
         local on_same_line_after = not cursor_on_match
             and on_same_line
-            and match.start.col >= cursor_col
+            and match.start.col > cursor_col
+
         if on_line_after or cursor_on_match or on_same_line_after then
-            return match
+            closestMatch = match
+            break -- Stop the loop if a match is found
         end
     end
+
+    -- If no match is found after cursor, search from the beginning of the file to the cursor
+    if not closestMatch then
+        for _, match in ipairs(matches) do
+            local on_line_before = match.finish.row < cursor_row
+            local on_same_line_before = match.finish.row == cursor_row
+                and match.finish.col < cursor_col
+
+            if on_line_before or on_same_line_before then
+                closestMatch = match
+                -- No break here; keep updating closestMatch to the last match before cursor
+            end
+        end
+    end
+
+    return closestMatch
 end
 
 --- @param match1 Sandr.Range

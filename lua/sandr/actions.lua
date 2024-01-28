@@ -25,30 +25,28 @@ local function substitute(
     replacement,
     flags
 )
-    -- Conditionally escape the pattern and replacement based on Config.regex
     local final_pattern = Config.regex and pattern
         or utils.escape_for_regex(pattern)
-    local final_replacement = Config.regex and replacement
-        or utils.escape_for_regex(replacement)
 
-    -- Modify the pattern for start_col logic
-    local modified_pattern = start_col > 0
-            and string.format(".\\{%d}\\zs%s", start_col - 1, final_pattern)
-        or final_pattern
+    if start_row == end_row and start_col > 0 then
+        -- For the first line, create a pattern that starts matching after start_col
+        local before_pattern = string.format(".\\{%d}", start_col) -- Match any character up to start_col
+        final_pattern = string.format(
+            "\\%%(%s\\)\\@<=\\%%(%s\\)",
+            before_pattern,
+            final_pattern
+        )
+    end
 
-    -- Determine the actual replacement text based on Config.preserve_case
-    final_replacement = Config.preserve_case
-            and ("\\=v:lua.preserve_case_replace(submatch(0), '" .. final_replacement .. "')")
-        or final_replacement
+    local final_replacement = Config.preserve_case
+            and ("\\=v:lua.preserve_case_replace(submatch(0), '" .. replacement .. "')")
+        or replacement
 
-    print("finalpattern=" .. final_pattern)
-    print("finalreplacement=" .. final_replacement)
-    -- Build and execute the substitute command
     local cmd = string.format(
         "%d,%ds/%s/%s/%s",
         start_row,
         end_row,
-        modified_pattern,
+        final_pattern,
         final_replacement,
         flags
     )
@@ -118,10 +116,13 @@ end
 
 ---@param value string
 function M.search_input_change(value)
+    print("actions.search_input_change")
     local bufnr = vim.api.nvim_win_get_buf(SourceWinId)
     local new_matches = matches.get_matches(bufnr, value)
 
     local current_match = matches.get_closest_match_after_cursor(new_matches)
+    print("current_match=" .. vim.inspect(current_match))
+    print("matches" .. vim.inspect(new_matches))
     if not current_match or not new_matches or #new_matches == 0 then
         highlight.clear_highlights(bufnr)
         return

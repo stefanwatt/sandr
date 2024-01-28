@@ -35,6 +35,7 @@ local search_input = {
     focused = true,
 }
 
+local count = 1
 local function get_search_input_options()
     ---@param value string
     local function on_submit(value)
@@ -43,8 +44,16 @@ local function get_search_input_options()
 
     ---@param value string
     local function on_change(value)
+        print(
+            "dialog-manager.search_input_changed #"
+                .. tostring(count)
+                .. " ; value="
+                .. value
+        )
+        count = count + 1
         search_input.value = value
         for _, sandr_hook_cb in ipairs(hooks.search_input_change) do
+            print("running hook")
             sandr_hook_cb.cb(value)
         end
     end
