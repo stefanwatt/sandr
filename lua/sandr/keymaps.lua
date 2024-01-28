@@ -25,13 +25,13 @@ local function setup_buffer_local_keymaps(
         )
         vim.keymap.set(
             { "n", "i" },
-            "<Up>",
+            Config.keymaps.prev_match,
             actions.prev_search_result,
             { noremap = true, silent = true, buffer = bufnr }
         )
         vim.keymap.set(
             { "n", "i" },
-            "<Down>",
+            Config.keymaps.next_match,
             actions.next_search_result,
             { noremap = true, silent = true, buffer = bufnr }
         )
@@ -118,6 +118,10 @@ function M.setup(search_input_bufnr, replace_input_bufnr)
     dialog_manager.on(
         "search_input_change",
         { cb = actions.search_input_change, name = "search_input_change" }
+    )
+    dialog_manager.on(
+        "replace_input_change",
+        { cb = actions.replace_input_change, name = "replace_input_change" }
     )
     dialog_manager.on("replace_input_submit", {
         cb = function(search_term, replace_term)

@@ -77,6 +77,9 @@ local function get_replace_input_options()
     ---@param value string
     local function on_change(value)
         replace_input.value = value
+        for _, sandr_hook_cb in ipairs(hooks.replace_input_change) do
+            sandr_hook_cb.cb(search_input.value, value)
+        end
     end
     local popup_opts, input_opts =
         input_options.get_replace_input_options(on_submit, on_change)
