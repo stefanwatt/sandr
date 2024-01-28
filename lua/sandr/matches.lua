@@ -50,8 +50,7 @@ function M.get_matches(bufnr, search_term)
     end
     local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
 
-    Matches = utils.flat_map(lines, get_matches_of_line, search_term)
-    return Matches
+    return utils.flat_map(lines, get_matches_of_line, search_term)
 end
 
 ---@param matches Sandr.Range[]

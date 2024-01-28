@@ -67,19 +67,52 @@ end
 
 ---@param pattern string
 ---@param replacement string
----@param starting_match Sandr.Range
----substitute with loop-around
-function M.confirm(pattern, replacement, starting_match)
+function M.replace_all(pattern, replacement)
+    local last_line = vim.fn.line("$")
+    if not last_line then
+        return
+    end
+
+    substitute(1, last_line, 0, pattern, replacement, "g")
+end
+
+---@param value string
+function M.search_input_change(value)
+    local bufnr = vim.api.nvim_win_get_buf(SourceWinId)
+    local new_matches = matches.get_matches(bufnr, value)
+
+    local current_match = matches.get_closest_match_after_cursor(new_matches)
+    if not current_match or not new_matches or #new_matches == 0 then
+        highlight.clear_highlights(bufnr)
+        return
+    end
+    CurrentMatch = current_match
+    highlight.highlight_matches(new_matches, current_match, bufnr)
+end
+
+---@param search_term string
+---@param replace_term string
+function M.replace_input_change(search_term, replace_term)
+    if not Config.replacement_preview then
+        return
+    end
+    highlight.draw_replacement_preview(search_term, replace_term)
+end
+
+---@param pattern string
+---@param replacement string
+function M.replace_input_submit(pattern, replacement)
     --TODO when you press q or Esc on the prompt of the first substitute command
     --then it should stop the loop-around
     --but it will execute the second and third still
+    vim.api.nvim_set_current_win(SourceWinId)
     local flags = Config.ignore_case and "gci" or "gcI"
-    local current_line = starting_match.start.row
+    local current_line = CurrentMatch.start.row
     local last_line = vim.fn.line("$")
     if not current_line or not last_line then
         return
     end
-    local start_col = starting_match.start.col
+    local start_col = CurrentMatch.start.col
 
     -- 1. Substitute only on the current line considering the start column
     substitute(
@@ -100,49 +133,6 @@ function M.confirm(pattern, replacement, starting_match)
     if current_line > 1 then
         substitute(1, current_line, 0, pattern, replacement, flags)
     end
-end
-
----@param pattern string
----@param replacement string
-function M.replace_all(pattern, replacement)
-    local last_line = vim.fn.line("$")
-    if not last_line then
-        return
-    end
-
-    substitute(1, last_line, 0, pattern, replacement, "g")
-end
-
----@param value string
-function M.search_input_change(value)
-    print("actions.search_input_change")
-    local bufnr = vim.api.nvim_win_get_buf(SourceWinId)
-    local new_matches = matches.get_matches(bufnr, value)
-
-    local current_match = matches.get_closest_match_after_cursor(new_matches)
-    print("current_match=" .. vim.inspect(current_match))
-    print("matches" .. vim.inspect(new_matches))
-    if not current_match or not new_matches or #new_matches == 0 then
-        highlight.clear_highlights(bufnr)
-        return
-    end
-    highlight.highlight_matches(new_matches, current_match, bufnr)
-end
-
----@param search_term string
----@param replace_term string
-function M.replace_input_change(search_term, replace_term)
-    if not Config.replacement_preview then
-        return
-    end
-    highlight.draw_replacement_preview(search_term, replace_term)
-end
-
----@param search_term string
----@param replace_term string
-function M.replace_input_submit(search_term, replace_term)
-    vim.api.nvim_set_current_win(SourceWinId)
-    M.confirm(search_term, replace_term, CurrentMatch)
 end
 
 function M.prev_search_result()
