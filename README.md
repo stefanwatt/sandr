@@ -14,6 +14,7 @@
 - [Search and replace in neovim](#search-and-replace-in-neovim)
 - [Why?](#why)
 - [How does this plugin work?](#how-does-this-plugin-work)
+- [Demo](#demo)
 - [Installation](#installation)
 
 <!-- TOC end -->
@@ -22,7 +23,7 @@
 <!-- TOC --><a name="alpha"></a>
 ## 🚨🚨🚨ALPHA🚨🚨🚨
 
-This is not ready for the public yet. Expect bugs.
+Use at your own risk. Expect bugs.
 At the moment I consider this project mostly a learning experience for me.
 
 <!-- TOC --><a name="search-and-replace-in-neovim"></a>
@@ -72,9 +73,16 @@ You can visually select text and then hit `<C-h>` to prefill the search term wit
 
 All these keymaps are just the default and can be configured of course.
 
-Here's a quick demo:
+<!-- TOC --><a name="demo"></a>
+## Demo
+### Loop Around
+<img style="width:100%;" src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExeGI3bXh5ZGZ4NGo4NGpvd2Rwcnl1bmdyaWEzaG1wamE2ZWd1cGVwaiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/4mhFyAKzQe2HjGFrqW/giphy.gif">
 
-<img style="width:100%;" src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExcWQ0N3huZjdiYWI0YXk3ZTBiZzNsc3VxbGRrYXVmZ29mbG55Z3BmdiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/ai2QN6xTM5nOb6UWQS/giphy.gif">
+### Ignore Case + Preserve Case
+<img style="width:100%;" src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExa3JpcXhydHppY3l1enQ3cW82dzgzcWY0eWRwcGlpdjFpbjViNHgxcyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/RFgqwmXNrcfp0WB7XF/giphy.gif">
+
+### Regex
+<img style="width:100%;" src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExazRjMDEyZjJ4YXp0bmZhMGwwcXlwYjhoODJnc3NrMmd1M2w2NjdpYyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/bIAaXBWyH5iHD5Udm9/giphy.gif">
 
 <!-- TOC --><a name="installation"></a>
 ## Installation
