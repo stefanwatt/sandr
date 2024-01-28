@@ -118,40 +118,13 @@ function M.search_input_change(value)
     highlight.highlight_matches(new_matches, current_match, bufnr)
 end
 
-local replacement_preview_ns =
-    vim.api.nvim_create_namespace("SandrReplacementPreview")
 ---@param search_term string
 ---@param replace_term string
 function M.replace_input_change(search_term, replace_term)
-    local bufnr = vim.api.nvim_win_get_buf(SourceWinId)
-    local current_matches = matches.get_matches(bufnr, search_term)
-
-    vim.api.nvim_buf_clear_namespace(bufnr, replacement_preview_ns, 0, -1)
-
-    for _, match in ipairs(current_matches) do
-        local ext_mark_id = tonumber(
-            match.start.col
-                .. match.start.row
-                .. match.finish.col
-                .. match.finish.row
-        )
-
-        vim.api.nvim_buf_set_extmark(
-            bufnr,
-            replacement_preview_ns,
-            match.start.row - 1,
-            match.start.col,
-            {
-                end_row = match.finish.row - 1,
-                end_col = match.finish.col,
-                virt_text = { { replace_term, "CurSearch" } },
-                virt_text_pos = "inline",
-                hl_mode = "replace",
-                strict = false,
-                conceal = "3",
-            }
-        )
+    if not Config.replacement_preview then
+        return
     end
+    highlight.draw_replacement_preview(search_term, replace_term)
 end
 
 ---@param search_term string

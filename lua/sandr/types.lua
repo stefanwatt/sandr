@@ -27,10 +27,12 @@
 ---@class Sandr.Config
 ---@field keymaps Sandr.ConfigKeymaps
 ---@field ignore_case boolean
+---@field replacement_preview boolean
 
 ---@class Sandr.ConfigUpdate
 ---@field keymaps? Sandr.ConfigKeymaps
 ---@field ignore_case? boolean
+---@field replacement_preview? boolean
 
 --- @class Sandr.State
 --- @field last_search_term string
@@ -39,7 +41,7 @@
 --- @field last_replace_term string
 --- @field last_replace_terms string[]
 --- @field replace_term_completion_index number
---- @field config? Config
+--- @field config? Sandr.Config
 --- @field matches? Sandr.Range[]
 --- @field current_match? Sandr.Range
 ---

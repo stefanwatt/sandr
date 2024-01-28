@@ -16,6 +16,7 @@ local default_config = {
         history_cycle_down = "<Down>",
     },
     ignore_case = true,
+    replacement_preview = true,
 }
 ---@type Sandr.Config
 Config = default_config

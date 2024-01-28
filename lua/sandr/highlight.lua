@@ -1,4 +1,4 @@
-local match_equals = require("sandr.matches").equals
+local matches = require("sandr.matches")
 local HL_GROUP_DEFAULT = "Search"
 local HL_GROUP_CURRENT_MATCH = "IncSearch"
 local ns = vim.api.nvim_create_namespace("sandr-highlight")
@@ -28,11 +28,11 @@ function M.clear_highlights(bufnr)
     vim.api.nvim_buf_clear_namespace(bufnr, -1, 0, -1)
 end
 
----@param matches Sandr.Range[]?
+---@param current_matches Sandr.Range[]?
 ---@param current_match Sandr.Range?
 ---@param bufnr number
-function M.highlight_matches(matches, current_match, bufnr)
-    if not matches then
+function M.highlight_matches(current_matches, current_match, bufnr)
+    if not current_matches then
         print("no matches to be highlighted")
         M.clear_highlights(bufnr)
         return
@@ -43,12 +43,47 @@ function M.highlight_matches(matches, current_match, bufnr)
         return
     end
     M.clear_highlights(bufnr)
-    for _, match in ipairs(matches) do
-        local hl_group = match_equals(match, current_match)
+    for _, match in ipairs(current_matches) do
+        local hl_group = matches.equals(match, current_match)
                 and HL_GROUP_CURRENT_MATCH
             or HL_GROUP_DEFAULT
         apply_highlight(match, bufnr, hl_group)
     end
 end
 
+local replacement_preview_ns =
+    vim.api.nvim_create_namespace("SandrReplacementPreview")
+---@param search_term string
+---@param replace_term string
+function M.draw_replacement_preview(search_term, replace_term)
+    local bufnr = vim.api.nvim_win_get_buf(SourceWinId)
+    local current_matches = matches.get_matches(bufnr, search_term)
+
+    vim.api.nvim_buf_clear_namespace(bufnr, replacement_preview_ns, 0, -1)
+
+    for _, match in ipairs(current_matches) do
+        local ext_mark_id = tonumber(
+            match.start.col
+                .. match.start.row
+                .. match.finish.col
+                .. match.finish.row
+        )
+
+        vim.api.nvim_buf_set_extmark(
+            bufnr,
+            replacement_preview_ns,
+            match.start.row - 1,
+            match.start.col,
+            {
+                end_row = match.finish.row - 1,
+                end_col = match.finish.col,
+                virt_text = { { replace_term, "CurSearch" } },
+                virt_text_pos = "inline",
+                hl_mode = "replace",
+                strict = false,
+                conceal = "3",
+            }
+        )
+    end
+end
 return M
