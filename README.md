@@ -96,7 +96,8 @@ All these keymaps are just the default and can be configured of course.
 <!-- TOC --><a name="installation"></a>
 ## Installation
 
--   install using your favorite plugin manager (`lazy` in this example)
+Install using your favorite plugin manager.
+This example uses <a href="https://github.com/folke/lazy.nvim">lazy</a>.
 
 ```lua
 {
