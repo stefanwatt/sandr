@@ -30,6 +30,7 @@ At the moment I consider this project mostly a learning experience for me.
 ## Search and replace in neovim...
 
 ...seems to be something that keeps coming up as a pain point every now and then. I do like the builtin substitute command, but there's some things that just work better for me ootb with the implementation in VSCode or IntelliJ.
+
 So why not keep using the builtin substitute, but build a frontend, that makes it more enjoyable to use. 
 
 <!-- TOC --><a name="why"></a>
