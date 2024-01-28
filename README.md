@@ -60,7 +60,7 @@ Running
 require("sandr").search_and_replace({})
 ```
 
-will bring up an nui based dialog in the top right corner of the screen, that should look similar to what you might be used to from IDEs.
+will bring up an <a href="https://github.com/MunifTanjim/nui.nvim">nui</a> based dialog in the top right corner of the screen, that should look similar to what you might be used to from IDEs.
 Start typing to highlight matches of the search term. Use `<Tab>` to jump to the replace term input.
 Start typing your replace term and hit `<CR>` to start replacing. From now on you're just in the builtin substitute command with the confirm flag set.
 So the keymaps that are shown on the bottom of the screen apply. However there's actually three substitute commands running in sequence.
@@ -101,6 +101,10 @@ All these keymaps are just the default and can be configured of course.
 ```lua
 {
     "stefanwatt/sandr",
+    dependencies = {
+        "MunifTanjim/nui.nvim",
+        "nvim-lua/plenary.nvim"
+    },
     opts = {
         jump_forward = "<Tab>",
         jump_backward = "<S-Tab>",
