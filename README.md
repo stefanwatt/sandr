@@ -27,9 +27,10 @@ Use at your own risk. Expect bugs.
 At the moment I consider this project mostly a learning experience for me.
 
 <!-- TOC --><a name="search-and-replace-in-neovim"></a>
-## Search and replace in neovim
+## Search and replace in neovim...
 
-seems to be something that keeps coming up as a pain point every now and then. I do like the builtin substitute command, but there's some things that just work better for me ootb with the implementation in VSCode or IntelliJ.
+...seems to be something that keeps coming up as a pain point every now and then. I do like the builtin substitute command, but there's some things that just work better for me ootb with the implementation in VSCode or IntelliJ.
+So why not keep using the builtin substitute, but build a frontend, that makes it more enjoyable to use. 
 
 <!-- TOC --><a name="why"></a>
 ## Why?
@@ -65,11 +66,18 @@ So the keymaps that are shown on the bottom of the screen apply. However there's
 
 1. Using regex, only replace on the current line starting after the cursor column.
 2. Replace from the next line until the end of the buffer.
-3. replace from the beginning of the buffer until the current line.
+3. Replace from the beginning of the buffer until the current line.
 
-So as expected you will start replacing from after your current and loop back around to where you started.
-If you don't want to confirm every match you can just use `<S-CR>` to while in the replace input to repace all matches in the buffer.
-You can visually select text and then hit `<C-h>` to prefill the search term with the visual selection.
+So as expected you will start replacing from after your current cursor location and loop back around to where you started.
+If you don't want to confirm every match you can just use `<S-CR>` while in the replace input to repace all matches in the buffer.
+You can visually select text and then hit `<C-h>` to prefill the search term with the visual selection
+
+Toggle
+- Ignore Case with `<Alt-i>`
+- Preserve Case with `<Alt-p>`
+- Regex Mode with `<Alt-r>`
+
+Jump to the next/previous match with `<C-n>` / `<C-p>`.
 
 All these keymaps are just the default and can be configured of course.
 
