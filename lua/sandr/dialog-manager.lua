@@ -204,6 +204,7 @@ M.hide_dialog = hide_dialog
 function M.show_dialog(search_term)
     --TODO apply highlighting when search_term is provided
     --TODO set search term
+    vim.api.nvim_command("nohlsearch")
     if not replace_input.nui_input then
         init_replace_input()
     end
