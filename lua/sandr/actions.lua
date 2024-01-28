@@ -1,5 +1,4 @@
 local utils = require("sandr.utils")
-local state = require("sandr.state")
 local matches = require("sandr.matches")
 local highlight = require("sandr.highlight")
 
@@ -127,8 +126,6 @@ function M.search_input_change(value)
         highlight.clear_highlights(bufnr)
         return
     end
-    state.set_matches(new_matches)
-    state.set_current_match(current_match)
     highlight.highlight_matches(new_matches, current_match, bufnr)
 end
 
@@ -145,20 +142,17 @@ end
 ---@param replace_term string
 function M.replace_input_submit(search_term, replace_term)
     vim.api.nvim_set_current_win(SourceWinId)
-    local current_match = state.get_current_match()
-    M.confirm(search_term, replace_term, current_match)
+    M.confirm(search_term, replace_term, CurrentMatch)
 end
 
 function M.prev_search_result()
-    local current_match = state.get_current_match()
-    local current_matches = state.get_matches()
-    local prev_match = matches.get_prev_match(current_match, current_matches)
+    local prev_match = matches.get_prev_match(CurrentMatch, Matches)
     if not prev_match then
         return
     end
-    state.set_current_match(prev_match)
+    CurrentMatch = prev_match
     local bufnr = vim.api.nvim_win_get_buf(SourceWinId)
-    highlight.highlight_matches(current_matches, prev_match, bufnr)
+    highlight.highlight_matches(Matches, prev_match, bufnr)
     local prev_match_line = prev_match.start.row
     local current_win = vim.api.nvim_get_current_win()
     vim.api.nvim_set_current_win(SourceWinId)
@@ -169,15 +163,13 @@ function M.prev_search_result()
 end
 
 function M.next_search_result()
-    local current_match = state.get_current_match()
-    local current_matches = state.get_matches()
-    local next_match = matches.get_next_match(current_match, current_matches)
+    local next_match = matches.get_next_match(CurrentMatch, Matches)
     if not next_match then
         return
     end
-    state.set_current_match(next_match)
+    CurrentMatch = next_match
     local bufnr = vim.api.nvim_win_get_buf(SourceWinId)
-    highlight.highlight_matches(current_matches, next_match, bufnr)
+    highlight.highlight_matches(Matches, next_match, bufnr)
     local next_match_line = next_match.start.row
     local current_win = vim.api.nvim_get_current_win()
     vim.api.nvim_set_current_win(SourceWinId)

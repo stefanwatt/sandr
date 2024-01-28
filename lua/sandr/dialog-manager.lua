@@ -2,7 +2,6 @@ local Input = require("nui.input")
 local highlight = require("sandr.highlight")
 local utils = require("sandr.utils")
 local matches = require("sandr.matches")
-local state = require("sandr.state")
 local actions = require("sandr.actions")
 local input_options = require("sandr.input-options")
 

@@ -1,7 +1,6 @@
 local dialog_manager = require("sandr.dialog-manager")
 local matches = require("sandr.matches")
 local actions = require("sandr.actions")
-local state = require("sandr.state")
 
 local M = {}
 local default_modes = { "n", "i", "x" }

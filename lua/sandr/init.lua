@@ -2,7 +2,6 @@ local keymaps = require("sandr.keymaps")
 local dialog_manager = require("sandr.dialog-manager")
 
 local utils = require("sandr.utils")
-local state = require("sandr.state")
 
 ---@type Sandr.Config
 local default_config = {
@@ -14,8 +13,6 @@ local default_config = {
         jump = "<Tab>",
         next_match = "<C-n>",
         prev_match = "<C-p>",
-        history_cycle_up = "<Up>",
-        history_cycle_down = "<Down>",
     },
     ignore_case = false,
     regex = false,
@@ -33,7 +30,6 @@ local M = {}
 function M.setup(user_config)
     Config = vim.tbl_deep_extend("force", default_config, user_config or {})
         or default_config
-    state.read_from_db()
 end
 
 ---@param args Sandr.Args

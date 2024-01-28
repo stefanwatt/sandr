@@ -23,8 +23,6 @@
 ---@field jump string
 ---@field next_match string
 ---@field prev_match string
----@field history_cycle_up string
----@field history_cycle_down string
 ---
 ---@class Sandr.Config
 ---@field keymaps Sandr.ConfigKeymaps

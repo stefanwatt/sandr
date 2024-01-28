@@ -1,4 +1,6 @@
 local utils = require("sandr.utils")
+Matches = {}
+CurrentMatch = nil
 local M = {}
 
 ---@param line string
@@ -48,7 +50,8 @@ function M.get_matches(bufnr, search_term)
     end
     local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
 
-    return utils.flat_map(lines, get_matches_of_line, search_term)
+    Matches = utils.flat_map(lines, get_matches_of_line, search_term)
+    return Matches
 end
 
 ---@param matches Sandr.Range[]
